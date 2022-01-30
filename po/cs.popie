@@ -1,0 +1,23 @@
+msgid No teacher channels are set.
+msgstr Nejsou nastaveny žádné kanály s učiteli.
+
+msgid Original channel
+msgstr Původní kanál
+
+msgid Teacher channel
+msgstr Kanál s učiteli
+
+msgid Teachers
+msgstr Učitelé
+
+msgid Teacher channel and teacher set.
+msgstr Kanál učitelů a jeho učitelé nastaveni.
+
+msgid Channel is not set in the database as a teacher channel.
+msgstr Tento kanál není v databázi jako kanál s učiteli.
+
+msgid Teacher was removed.
+msgstr Učitel byl odstraněn.
+
+msgid Teacher channel was unset, but was not deleted.
+msgstr Kanál s učiteli byl smazán z databáze, ale ne ze serveru.
