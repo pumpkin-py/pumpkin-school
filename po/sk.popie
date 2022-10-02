@@ -109,6 +109,24 @@ msgstr
 msgid You have no review of teacher {name}.
 msgstr
 
+msgid Optional
+msgstr
+
+msgid Compulsory - optional
+msgstr
+
+msgid Compulsory
+msgstr
+
+msgid Other
+msgstr
+
+msgid Recommended
+msgstr
+
+msgid Optional - specialized
+msgstr
+
 msgid Name must be atleast 3 characters long.
 msgstr
 
@@ -239,24 +257,6 @@ msgid Summer
 msgstr
 
 msgid Both
-msgstr
-
-msgid Optional
-msgstr
-
-msgid Compulsory - optional
-msgstr
-
-msgid Compulsory
-msgstr
-
-msgid Other
-msgstr
-
-msgid Recommended
-msgstr
-
-msgid Optional - specialized
 msgstr
 
 msgid Error parsing arguments:

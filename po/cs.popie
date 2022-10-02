@@ -109,6 +109,24 @@ msgstr Tvoje recenze učitele {name} byla přidána.
 msgid You have no review of teacher {name}.
 msgstr Nemáš žádné review učitele {name}.
 
+msgid Optional
+msgstr Volitelný
+
+msgid Compulsory - optional
+msgstr Povinně volitelný
+
+msgid Compulsory
+msgstr Povinný
+
+msgid Other
+msgstr Ostatní
+
+msgid Recommended
+msgstr Doporučený
+
+msgid Optional - specialized
+msgstr Volitelný oborový
+
 msgid Name must be atleast 3 characters long.
 msgstr Jméno musí mít alespoň 3 znaky.
 
@@ -240,24 +258,6 @@ msgstr Letní
 
 msgid Both
 msgstr Oba
-
-msgid Optional
-msgstr Volitelný
-
-msgid Compulsory - optional
-msgstr Povinně volitelný
-
-msgid Compulsory
-msgstr Povinný
-
-msgid Other
-msgstr Ostatní
-
-msgid Recommended
-msgstr Doporučený
-
-msgid Optional - specialized
-msgstr Volitelný oborový
 
 msgid Error parsing arguments:
 msgstr Chyba zpracování argumentů:

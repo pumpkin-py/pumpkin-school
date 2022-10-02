@@ -1,8 +1,11 @@
 from __future__ import annotations
 
+import enum
+
 from sqlalchemy import (
     BigInteger,
     Column,
+    Enum,
     Integer,
     String,
     ForeignKey,
@@ -13,7 +16,10 @@ from sqlalchemy import (
 from sqlalchemy.orm import relationship
 from typing import Callable, Dict, List, Optional
 
+from pie import i18n
 from pie.database import database, session
+
+_ = i18n.Translator("modules/school").translate
 
 teachers_subjects = Table(
     "school_dataset_teachers_subjects",
@@ -31,6 +37,32 @@ teachers_subjects = Table(
 )
 
 
+class Obligation(enum.Enum):
+    OPTIONAL = "O"
+    OPTIONAL_SPECIALIZED = "VO"
+    COMPULSORY_OPTIONAL = "PV"
+    COMPULSORY = "V"
+    RECOMMENDED = "D"
+    OTHER = "O"
+
+    def translate(self, ctx) -> str:
+        """Translate obligation from it's Czech shortcut"""
+        if self == Obligation.OPTIONAL:
+            return _(ctx, "Optional")
+        elif self == Obligation.COMPULSORY_OPTIONAL:
+            return _(ctx, "Compulsory - optional")
+        elif self == Obligation.COMPULSORY:
+            return _(ctx, "Compulsory")
+        elif self == Obligation.OTHER:
+            return _(ctx, "Other")
+        elif self == Obligation.RECOMMENDED:
+            return _(ctx, "Recommended")
+        elif self == Obligation.OPTIONAL_SPECIALIZED:
+            return _(ctx, "Optional - specialized")
+        else:
+            return "-"
+
+
 class SubjectProgram(database.base):
     __tablename__ = "school_dataset_subject_program"
 
@@ -43,12 +75,12 @@ class SubjectProgram(database.base):
         primary_key=True,
     )
     year = Column(Integer, primary_key=True)
-    obligation = Column(String, primary_key=True)
+    obligation = Column(Enum(Obligation), primary_key=True)
     subject = relationship("Subject", back_populates="programs")
     program = relationship("Program", back_populates="subjects")
 
     @staticmethod
-    def get(subject: Subject, program: Program, year: int, obligation: str):
+    def get(subject: Subject, program: Program, year: int, obligation: Obligation):
         query = (
             session.query(SubjectProgram)
             .filter_by(subject_idx=subject.idx)
@@ -61,7 +93,7 @@ class SubjectProgram(database.base):
         return query
 
     @staticmethod
-    def add_relation(subject: Subject, program: Program, year: int, obligation: str):
+    def add(subject: Subject, program: Program, year: int, obligation: Obligation):
         relation = SubjectProgram(
             subject_idx=subject.idx,
             program_idx=program.idx,
@@ -559,7 +591,8 @@ class Subject(database.base):
                 ctx, program_data["abbreviation"], program_data["degree"]
             )
             sub_prog = SubjectProgram(
-                year=program_data["year"], obligation=program_data["obligation"]
+                year=program_data["year"],
+                obligation=Obligation(Obligation(program_data["obligation"])),
             )
             sub_prog.program = program
             self.programs.append(sub_prog)

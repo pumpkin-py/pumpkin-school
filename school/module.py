@@ -12,7 +12,7 @@ from discord.ext import commands
 
 from pie import i18n, logger, utils, check
 
-from .database import Teacher, Subject, Program, SubjectProgram
+from .database import Teacher, Subject, Program, SubjectProgram, Obligation
 
 _ = i18n.Translator("modules/school").translate
 guild_log = logger.Guild.logger()
@@ -26,9 +26,6 @@ DEGREE_MAPPING = {
 }
 
 SEMESTERS = {"Winter", "Summer", "Both"}
-
-# This is used to sort subjects in various situations and check
-OBLIGATIONS = ["P", "PV", "D", "V", "VO", "O"]
 
 # TODO: CommandParser SHOULD BE MOVED TO CORE (PIE)
 
@@ -1009,19 +1006,22 @@ class School(commands.Cog):
 
         obligation = obligation.upper()
 
-        if obligation not in OBLIGATIONS:
+        try:
+            obligation = Obligation(obligation)
+        except ValueError:
             message = _(ctx, "Obligation must be:")
-            for obligation in OBLIGATIONS:
+            for obligation in [o.value for o in Obligation]:
                 message += (
                     "\n**"
-                    + obligation
+                    + obligation.value
                     + "** "
                     + _(ctx, "for")
                     + " "
-                    + School._translate_obligation(obligation)
+                    + obligation.translate(ctx)
                 )
 
             await ctx.reply(message)
+            return
 
         if SubjectProgram.get(subject, program, year, obligation):
             await ctx.reply(
@@ -1032,14 +1032,14 @@ class School(commands.Cog):
             )
             return
 
-        SubjectProgram.add_relation(subject, program, year, obligation)
+        SubjectProgram.add(subject, program, year, obligation)
 
         await ctx.reply(_(ctx, "Subject and program succesfully linked."))
 
         await guild_log.info(
             ctx.author,
             ctx.channel,
-            f"Program {program.abbreviation} ({program.degree}) linked with {subject.abbreviation} (year: {year}, obligation: {obligation}).",
+            f"Program {program.abbreviation} ({program.degree}) linked with {subject.abbreviation} (year: {year}, obligation: {obligation.value}).",
         )
 
     async def _unlink_program_subject(
@@ -1082,19 +1082,22 @@ class School(commands.Cog):
 
         obligation = obligation.upper()
 
-        if obligation not in OBLIGATIONS:
+        try:
+            obligation = Obligation(obligation)
+        except ValueError:
             message = _(ctx, "Obligation must be:")
-            for obligation in OBLIGATIONS:
+            for obligation in [o.value for o in Obligation]:
                 message += (
                     "\n**"
-                    + obligation
+                    + obligation.value
                     + "** "
                     + _(ctx, "for")
                     + " "
-                    + School._translate_obligation(obligation)
+                    + obligation.translate(ctx)
                 )
 
             await ctx.reply(message)
+            return
 
         relation = SubjectProgram.get(subject, program, year, obligation)
 
@@ -1114,7 +1117,7 @@ class School(commands.Cog):
         await guild_log.info(
             ctx.author,
             ctx.channel,
-            f"Program {program.abbreviation} ({program.degree}) unlinked with {subject.abbreviation} (year: {year}, obligation: {obligation}).",
+            f"Program {program.abbreviation} ({program.degree}) unlinked with {subject.abbreviation} (year: {year}, obligation: {obligation.value}).",
         )
 
     @staticmethod
@@ -1138,23 +1141,6 @@ class School(commands.Cog):
             return _(ctx, "Summer")
         elif semester == "Both":
             return _(ctx, "Both")
-        else:
-            return "-"
-
-    def _translate_obligation(ctx, obligation: str) -> str:
-        """Translate obligation from it's czech shortcut"""
-        if obligation == "V":
-            return _(ctx, "Optional")
-        elif obligation == "PV":
-            return _(ctx, "Compulsory - optional")
-        elif obligation == "P":
-            return _(ctx, "Compulsory")
-        elif obligation == "O":
-            return _(ctx, "Other")
-        elif obligation == "D":
-            return _(ctx, "Recommended")
-        elif obligation == "VO":
-            return _(ctx, "Optional - specialized")
         else:
             return "-"
 
@@ -1254,12 +1240,12 @@ class School(commands.Cog):
                 value="\u200b",
                 inline=False,
             )
-            for obligation in OBLIGATIONS:
+            for obligation in Obligation:
                 if obligation not in by_year:
                     continue
                 subject_list = by_year[obligation]
                 embed.add_field(
-                    name=School._translate_obligation(ctx, obligation),
+                    name=obligation.translate(ctx),
                     value=", ".join(sorted(subject_list)),
                 )
 
@@ -1328,9 +1314,7 @@ class School(commands.Cog):
                     _(ctx, "**{program}** ({obligation}, year: {year})").format(
                         program=relation.program.abbreviation,
                         year=relation.year,
-                        obligation=School._translate_obligation(
-                            ctx, relation.obligation
-                        ),
+                        obligation=relation.obligation.translate(ctx),
                     )
                 )
 
