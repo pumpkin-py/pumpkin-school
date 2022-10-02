@@ -36,12 +36,46 @@ teachers_subjects = Table(
     ),
 )
 
-DEGREE_MAPPING = {
-    "B": "Bachelor",
-    "D": "Doctoral",
-    "M": "Masters",
-    "N": "Masters",
-}
+
+class ProgramType(enum.Enum):
+    FULLTIME = "F"
+    DISTANCE = "D"
+    UNKNOWN = "-"
+
+    @staticmethod
+    def from_shortcut(shortcut: str) -> ProgramType:
+        shortcut = shortcut.upper()
+        try:
+            program_type = ProgramType(shortcut)
+        except ValueError:
+            return ProgramType.UNKNOWN
+
+        return program_type
+
+    @staticmethod
+    def get_formatted_list(ctx) -> str:
+        list = ""
+        for program_type in ProgramType:
+            if program_type == ProgramType.UNKNOWN:
+                continue
+            list += (
+                "\n**"
+                + program_type.value
+                + "** "
+                + _(ctx, "for")
+                + " "
+                + program_type.translate(ctx)
+            )
+        return list
+
+    def translate(self, ctx) -> str:
+        """Translate program type"""
+        if self == ProgramType.FULLTIME:
+            return _(ctx, "Full-time")
+        elif self == Obligation.DISTANCE:
+            return _(ctx, "Distance")
+        else:
+            return "-"
 
 
 class Degree(enum.Enum):
@@ -331,6 +365,8 @@ class Program(database.base):
     abbreviation = Column(String)
     name = Column(String)
     degree = Column(Enum(Degree))
+    language = Column(String)
+    type = Column(Enum(ProgramType))
     subjects = relationship(
         "SubjectProgram",
         back_populates="program",
