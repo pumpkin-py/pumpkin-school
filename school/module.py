@@ -253,12 +253,13 @@ class School(commands.Cog):
 
         guarantor = None
         if args.guarantor:
-            guarantor = Teacher.get_by_sid(ctx, args.guarantor)
-            if not guarantor:
+            guarantor = Teacher.get(ctx, school_id=args.guarantor)
+            if len(guarantor) != 1:
                 await ctx.reply(
                     _(ctx, "Teacher with ID {id} not found.").format(id=args.guarantor)
                 )
                 return
+            guarantor = guarantor[0]
 
         if args.abbreviation:
             if subject.abbreviation == args.abbreviation:
@@ -414,15 +415,15 @@ class School(commands.Cog):
         Args:
             teacher_id: Schoold ID of teacher
         """
-        teacher = Teacher.get_by_sid(ctx, teacher_id)
+        teacher = Teacher.get(ctx, school_id=teacher_id)
 
-        if not teacher:
+        if len(teacher):
             await ctx.reply(
                 _(ctx, "Teacher with ID {id} not found.").format(id=teacher_id)
             )
             return
 
-        embed = await self._get_teacher_embed(ctx, teacher, True)
+        embed = await self._get_teacher_embed(ctx, teacher[0], True)
 
         await ctx.reply(embed=embed)
 
@@ -438,7 +439,7 @@ class School(commands.Cog):
             await ctx.reply(_(ctx, "Name must be atleast 3 characters long."))
             return
 
-        teachers = Teacher.search(ctx, name)
+        teachers = Teacher.get(ctx, name=name)
 
         if len(teachers) == 0:
             await ctx.reply(
@@ -485,11 +486,13 @@ class School(commands.Cog):
             name: Teacher's new name
         """
 
-        teacher = Teacher.get_by_sid(ctx, id)
+        teacher = Teacher.get(ctx, school_id=id)
 
-        if not teacher:
+        if len(teacher) != 1:
             await ctx.reply(_(ctx, "Teacher with ID {id} not found.").format(id=id))
             return
+
+        teacher = teacher[0]
 
         teacher.edit(name)
 
@@ -505,10 +508,12 @@ class School(commands.Cog):
         Args:
             id: Teacher school ID
         """
-        teacher = Teacher.get_by_sid(ctx, id)
-        if not teacher:
+        teacher = Teacher.get(ctx, school_id=id)
+        if len(teacher) != 1:
             await ctx.reply(_(ctx, "Teacher with ID {id} not found.").format(id=id))
             return
+
+        teacher = teacher[0]
 
         embed = await self._get_teacher_embed(ctx, teacher, True)
         embed.title = (
@@ -947,12 +952,13 @@ class School(commands.Cog):
         list of Teacher objects from list of their school IDs"""
         teachers_list = []
         for teacher_sid in teachers:
-            teacher = Teacher.get_by_sid(ctx, teacher_sid)
-            if not teacher:
+            teacher = Teacher.get(ctx, school_id=teacher_sid)
+            if len(teacher) != 1:
                 await ctx.reply(
                     _(ctx, "Teacher with ID {id} not found.").format(id=teacher_sid)
                 )
                 return None
+            teacher = teacher[0]
             if teacher in teachers_list:
                 await ctx.reply(
                     _(

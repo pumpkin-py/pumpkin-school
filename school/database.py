@@ -164,26 +164,19 @@ class Teacher(database.base):
             Teacher._is_used_checks.append(func)
 
     @staticmethod
-    def get_by_sid(ctx, school_id: int) -> Optional[Teacher]:
-        query = (
-            session.query(Teacher)
-            .filter_by(guild_id=ctx.guild.id)
-            .filter_by(school_id=school_id)
-        )
+    def get(ctx, school_id: int = None, name: str = None) -> List[Teacher]:
+        query = session.query(Teacher).filter_by(guild_id=ctx.guild.id)
 
-        return query.one_or_none()
+        if school_id:
+            query = query.filter_by(school_id=school_id)
 
-    @staticmethod
-    def search(ctx, name: str) -> List[Teacher]:
-        query = (
-            session.query(Teacher)
-            .filter_by(guild_id=ctx.guild.id)
-            .filter(Teacher.name.ilike(f"%{name}%"))
-        )
+        if name:
+            query = query.filter(Teacher.name.ilike(f"%{name}%"))
+
         return query.all()
 
     @staticmethod
-    def get_or_create(ctx, school_id: int, name: str) -> Teacher:
+    def add(ctx, school_id: int, name: str) -> Teacher:
         query = (
             session.query(Teacher)
             .filter_by(school_id=school_id, guild_id=ctx.guild.id)
