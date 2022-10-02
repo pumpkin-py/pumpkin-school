@@ -112,6 +112,15 @@ msgstr
 msgid for
 msgstr
 
+msgid Summer
+msgstr
+
+msgid Winter
+msgstr
+
+msgid Both
+msgstr
+
 msgid Full-time
 msgstr
 
@@ -158,6 +167,9 @@ msgid Subject with abbreviation {abbreviation} already exists!
 msgstr
 
 msgid You can't add and remove same teacher (ID: {id}).
+msgstr
+
+msgid Semester must be: {semesters}
 msgstr
 
 msgid Subject successfuly edited.
@@ -251,15 +263,6 @@ msgid This combination of program, degree, subject, year and obligation does not
 msgstr
 
 msgid Subject and program succesfully unlinked.
-msgstr
-
-msgid Winter
-msgstr
-
-msgid Summer
-msgstr
-
-msgid Both
 msgstr
 
 msgid Error parsing arguments:

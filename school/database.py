@@ -21,6 +21,7 @@ from pie.database import database, session
 
 _ = i18n.Translator("modules/school").translate
 
+# M:N table to connect teachers with subjects
 teachers_subjects = Table(
     "school_dataset_teachers_subjects",
     database.base.metadata,
@@ -37,13 +38,80 @@ teachers_subjects = Table(
 )
 
 
+class Semester(enum.Enum):
+    """Enum for semester"""
+
+    SUMMER = "SUMMER"
+    WINTER = "WINTER"
+    BOTH = "BOTH"
+
+    @staticmethod
+    def from_bool(winter_semester: bool, summer_semester: bool) -> Semester:
+        if winter_semester and summer_semester:
+            return Semester.BOTH
+        elif winter_semester:
+            return Semester.WINTER
+        else:
+            return Semester.SUMMER
+
+    @staticmethod
+    def get_formatted_list(ctx) -> str:
+        """Returns translated list of valid semesters.
+
+        Args:
+            ctx: Translation context
+
+        Returns:
+            Formated list of valid semesters
+        """
+        list = ""
+        for semester in Semester:
+            list += (
+                "\n**"
+                + semester.value
+                + "** "
+                + _(ctx, "for")
+                + " "
+                + semester.translate(ctx)
+            )
+        return list
+
+    def translate(self, ctx) -> str:
+        """Translate semester
+
+        Args:
+            ctx: Translation context
+
+        Returns:
+            Translated human-readable semester
+        """
+        if self == Semester.SUMMER:
+            return _(ctx, "Summer")
+        elif self == Semester.WINTER:
+            return _(ctx, "Winter")
+        elif self == Semester.BOTH:
+            return _(ctx, "Both")
+        else:
+            return "-"
+
+
 class ProgramType(enum.Enum):
+    """Enum for program type"""
+
     FULLTIME = "F"
     DISTANCE = "D"
     UNKNOWN = "-"
 
     @staticmethod
     def from_shortcut(shortcut: str) -> ProgramType:
+        """Get ProgramType based on shortcut.
+
+        Args:
+            shortcut: Shortcut of program type
+
+        Returns:
+            ProgramType based on shortcut or ProgramType.UNKNOWN if unknown
+        """
         shortcut = shortcut.upper()
         try:
             program_type = ProgramType(shortcut)
@@ -54,6 +122,15 @@ class ProgramType(enum.Enum):
 
     @staticmethod
     def get_formatted_list(ctx) -> str:
+        """Returns translated list of valid
+        program types.
+
+        Args:
+            ctx: Translation context
+
+        Returns:
+            Formated list of valid degrees
+        """
         list = ""
         for program_type in ProgramType:
             if program_type == ProgramType.UNKNOWN:
@@ -69,10 +146,17 @@ class ProgramType(enum.Enum):
         return list
 
     def translate(self, ctx) -> str:
-        """Translate program type"""
+        """Translate program type
+
+        Args:
+            ctx: Translation context
+
+        Returns:
+            Translated human-readable program type
+        """
         if self == ProgramType.FULLTIME:
             return _(ctx, "Full-time")
-        elif self == Obligation.DISTANCE:
+        elif self == ProgramType.DISTANCE:
             return _(ctx, "Distance")
         else:
             return "-"
@@ -86,6 +170,14 @@ class Degree(enum.Enum):
 
     @staticmethod
     def from_shortcut(shortcut: str) -> Degree:
+        """Get Degree based on shortcut.
+
+        Args:
+            shortcut: Shortcut of degree
+
+        Returns:
+            Degree based on shortcut or Degree.UNKNOWN if unknown
+        """
         shortcut = shortcut.upper()
         if shortcut == "N":
             shortcut = "M"
@@ -99,6 +191,14 @@ class Degree(enum.Enum):
 
     @staticmethod
     def get_formatted_list(ctx) -> str:
+        """Returns translated list of valid degrees.
+
+        Args:
+            ctx: Translation context
+
+        Returns:
+            Formated list of valid degrees
+        """
         list = ""
         for degree in Degree:
             if degree == Degree.UNKNOWN:
@@ -114,7 +214,14 @@ class Degree(enum.Enum):
         return list
 
     def translate(self, ctx) -> str:
-        """Translate degree"""
+        """Translate degree
+
+        Args:
+            ctx: Translation context
+
+        Returns:
+            Translated human-readable degree
+        """
         if self == Obligation.BACHELOR:
             return _(ctx, "Bachelor")
         elif self == Obligation.DOCTORAL:
@@ -135,6 +242,14 @@ class Obligation(enum.Enum):
 
     @staticmethod
     def get_formatted_list(ctx) -> str:
+        """Returns translated list of valid obligations.
+
+        Args:
+            ctx: Translation context
+
+        Returns:
+            Formated list of valid obligations
+        """
         list = ""
         for obligation in Obligation:
             list += (
@@ -148,7 +263,14 @@ class Obligation(enum.Enum):
         return list
 
     def translate(self, ctx) -> str:
-        """Translate obligation"""
+        """Translate obligation
+
+        Args:
+            ctx: Translation context
+
+        Returns:
+            Translated human-readable obligation
+        """
         if self == Obligation.OPTIONAL:
             return _(ctx, "Optional")
         elif self == Obligation.COMPULSORY_OPTIONAL:
@@ -166,6 +288,12 @@ class Obligation(enum.Enum):
 
 
 class SubjectProgram(database.base):
+    """Table used for linking subject with program.
+
+    Combination of subject, program, year and obligation
+    is used as primary key and therefor must be unique.
+    """
+
     __tablename__ = "school_dataset_subject_program"
 
     subject_idx = Column(
@@ -182,7 +310,20 @@ class SubjectProgram(database.base):
     program = relationship("Program", back_populates="subjects")
 
     @staticmethod
-    def get(subject: Subject, program: Program, year: int, obligation: Obligation):
+    def get(
+        subject: Subject, program: Program, year: int, obligation: Obligation
+    ) -> Optional[SubjectProgram]:
+        """Get relation between program and subject based on year and obligation.
+
+        Args:
+            subject: Subject in relation
+            program: Program in relation
+            year: Year of relation
+            obligation: Obligation of realtion
+
+        Returns:
+            SubjectProgram if relation exists, None otherwise.
+        """
         query = (
             session.query(SubjectProgram)
             .filter_by(subject_idx=subject.idx)
@@ -195,7 +336,21 @@ class SubjectProgram(database.base):
         return query
 
     @staticmethod
-    def add(subject: Subject, program: Program, year: int, obligation: Obligation):
+    def add(
+        subject: Subject, program: Program, year: int, obligation: Obligation
+    ) -> SubjectProgram:
+        """Create relation between subject and program based on year and obligation
+
+        Args:
+            subject: Subject in relation
+            program: Program in relation
+            year: Year of relation
+            obligation: Obligation of realtion
+
+        Returns:
+            Created SubjectProgram relation
+        """
+
         relation = SubjectProgram(
             subject_idx=subject.idx,
             program_idx=program.idx,
@@ -209,11 +364,16 @@ class SubjectProgram(database.base):
         return relation
 
     def delete(self):
+        """Delete relation from DB."""
         session.delete(self)
         session.commit()
 
 
 class Teacher(database.base):
+    """Table holding data about teachers.
+    Each teacher has unique constraint on schoold ID and guild ID.
+    """
+
     __tablename__ = "school_dataset_teacher"
     __table_args__ = (
         UniqueConstraint("school_id", "guild_id", name="school_id_guild_id_unique"),
@@ -267,6 +427,16 @@ class Teacher(database.base):
 
     @staticmethod
     def get(ctx, school_id: int = None, name: str = None) -> List[Teacher]:
+        """Get list of Teachers searched by arguments.
+
+        Args:
+            ctx: Context, used to specify guild
+            name: Teacher name
+
+        Returns:
+            List of Teachers
+
+        """
         query = session.query(Teacher).filter_by(guild_id=ctx.guild.id)
 
         if school_id:
@@ -279,6 +449,17 @@ class Teacher(database.base):
 
     @staticmethod
     def add(ctx, school_id: int, name: str) -> Teacher:
+        """Add new teacher to database. If teacher exists,
+        edits teacher name.
+
+        Args:
+            ctx: Context, used to specify guild
+            name: Teacher name
+
+        Returns:
+            Created or updated Teacher
+        """
+
         teacher = (
             session.query(Teacher)
             .filter_by(school_id=school_id, guild_id=ctx.guild.id)
@@ -310,6 +491,14 @@ class Teacher(database.base):
 
     @staticmethod
     def get_not_used(ctx) -> List[Teacher]:
+        """Returns list of teachers that are not used.
+
+        Args
+            ctx: Context used to get guild ID
+
+        Returns:
+            List of unused teachers based on filter generators.
+        """
         query = session.query(Teacher).filter_by(guild_id=ctx.guild.id)
 
         for func in Teacher._used_filter_generators:
@@ -318,9 +507,14 @@ class Teacher(database.base):
         return query.all()
 
     def save(self):
+        """Save Teacher object after editing."""
         session.commit()
 
     def is_used(self) -> bool:
+        """Checks if teacher is used based on registered check functions.
+
+        Returns:
+            True if tacher is used, False if not."""
         for func in Teacher._is_used_checks:
             if func(self):
                 return True
@@ -328,6 +522,7 @@ class Teacher(database.base):
         return False
 
     def delete(self):
+        """Delete Teacher from DB."""
         session.delete(self)
         session.commit()
 
@@ -348,6 +543,12 @@ class Teacher(database.base):
 
 
 class Program(database.base):
+    """Table used to hold program information.
+    Eeach program is unique based on guild, abbreviaton
+    and degree.
+
+    """
+
     __tablename__ = "school_dataset_program"
     __table_args__ = (
         UniqueConstraint(
@@ -372,7 +573,17 @@ class Program(database.base):
     )
 
     @staticmethod
-    def get(ctx, degree: Degree = None, abbreviation: str = None) -> Optional[Program]:
+    def get(ctx, degree: Degree = None, abbreviation: str = None) -> List[Program]:
+        """Get list of programs based on arguments.
+
+        Args:
+            ctx: Context used to determine guild
+            degree: Optional argument to filter
+            abbreviation: Optional argument to filter
+
+        Returns:
+            List of found programs.
+        """
         query = session.query(Program).filter_by(guild_id=ctx.guild.id)
 
         if degree:
@@ -384,9 +595,19 @@ class Program(database.base):
         return query.all()
 
     def save(self):
+        """Save program after editing"""
         session.commit()
 
-    def add(ctx, abbreviation: str, degree: str) -> Program:
+    def add(ctx, abbreviation: str, degree: Degree) -> Program:
+        """Add or edit program if exists
+
+        Args:
+            abbreviation: Program abbreviation
+            degree: Program degree
+
+        Returns:
+            Created or edited program.
+        """
         query = (
             session.query(Program)
             .filter_by(guild_id=ctx.guild.id, abbreviation=abbreviation, degree=degree)
@@ -406,6 +627,7 @@ class Program(database.base):
         return program
 
     def delete(self):
+        """Delete program."""
         session.delete(self)
         session.commit()
 
@@ -427,6 +649,8 @@ class Program(database.base):
 
 
 class SubjectUrl(database.base):
+    """Table holding list of subjects URL"""
+
     __tablename__ = "school_dataset_subject_url"
 
     subject_id = Column(
@@ -448,6 +672,10 @@ class SubjectUrl(database.base):
 
 
 class Subject(database.base):
+    """Table used to hold subject data.
+    Subject abbreviation must be unique for each guild.
+    """
+
     __tablename__ = "school_dataset_subject"
     __table_args__ = (
         UniqueConstraint(
@@ -460,7 +688,7 @@ class Subject(database.base):
     abbreviation = Column(String)
     name = Column(String)
     institute = Column(String)
-    semester = Column(String)
+    semester = Column(Enum(Semester))
     guarantor_id = Column(
         Integer, ForeignKey("school_dataset_teacher.idx", ondelete="SET NULL")
     )
@@ -514,6 +742,14 @@ class Subject(database.base):
 
     @staticmethod
     def get_not_used(ctx) -> List[Subject]:
+        """Get list of non-used subjects based on check function list.
+
+        Args:
+            ctx: Context used to determine guild.
+
+        Returns:
+            List of non-used subjects.
+        """
         query = session.query(Subject).filter_by(guild_id=ctx.guild.id)
 
         for func in Subject._used_filter_generators:
@@ -523,7 +759,11 @@ class Subject(database.base):
 
     @staticmethod
     def purge(ctx):
-        """BEWARE! Purges all subjects that are not used!"""
+        """BEWARE! Purges all subjects that are not used!
+
+        Args:
+            ctx: Context used to determine guild.
+        """
 
         query = session.query(Subject).filter_by(guild_id=ctx.guild.id)
 
@@ -536,6 +776,16 @@ class Subject(database.base):
 
     @staticmethod
     def get(ctx, abbreviation: str = None, name: str = None) -> List[Subject]:
+        """Get subjects based on arguments.
+
+        Args:
+            abbreviation: Abbreviation used to search
+            name: Name of subject to search for
+
+        Returns:
+            List of subjects based on search arguments.
+
+        """
         query = session.query(Subject).filter_by(guild_id=ctx.guild.id)
 
         if abbreviation:
@@ -547,7 +797,18 @@ class Subject(database.base):
         return query.one_or_none()
 
     @staticmethod
-    def from_json(ctx, json_data):
+    def from_json(ctx, json_data) -> Subject:
+        """Create subject based on JSON data from import file.
+        Update subject information if subject with same abbreviation
+        exists.
+
+        Args:
+            ctx: Context used to determine guild
+            json_data: Formated JSON data
+
+        Returns:
+            Created or updated Subject
+        """
         abbreviation = json_data.get("abbreviation", None)
 
         if not abbreviation:
@@ -570,16 +831,10 @@ class Subject(database.base):
         winter_semester = json_data.get("winter_semester", False)
         summer_semester = json_data.get("summer_semester", False)
 
-        if winter_semester and summer_semester:
-            semester = "Both"
-        elif winter_semester:
-            semester = "Winter"
-        else:
-            semester = "Summer"
+        subject.semester = Semester.from_bool(winter_semester, summer_semester)
 
         subject.name = name
         subject.institute = institute
-        subject.semester = semester
 
         session.merge(subject)
         session.flush()
@@ -598,6 +853,7 @@ class Subject(database.base):
         return subject
 
     def is_used(self) -> bool:
+        """Checks if subject is used based on check functions."""
         for func in Subject._is_used_checks:
             if func(self):
                 return True
@@ -605,13 +861,23 @@ class Subject(database.base):
         return False
 
     def delete(self):
+        """Delete subject."""
         session.delete(self)
         session.commit()
 
     def save(self):
+        """Save updated subject"""
         session.commit()
 
     def add_teachers(self, teachers: List[Teacher]) -> List[str]:
+        """Add teachers to subject.
+
+        Args:
+            teachers: List of teachers
+
+        Returns:
+            ID's of teachers that were not teaching subject.
+        """
         ignored = []
         for teacher in teachers:
             if teacher in self.teachers:
@@ -624,6 +890,14 @@ class Subject(database.base):
         return ignored
 
     def remove_teachers(self, teachers: List[Teacher]) -> List[str]:
+        """Remove  teachers to subject.
+
+        Args:
+            teachers: List of teachers
+
+        Returns:
+            ID's of teachers that were not teaching subject.
+        """
         ignored = []
         for teacher in teachers:
             if teacher not in self.teachers:
@@ -636,6 +910,12 @@ class Subject(database.base):
         return ignored
 
     def import_programs(self, ctx, programs: Dict):
+        """Remove all relations between subject and programs
+        and create new one based on import data.
+
+        Args:
+            programs: Dict containing abbreviation, degree, year and obligation.
+        """
         query = session.query(SubjectProgram).filter_by(subject_idx=self.idx).all()
         for relation in query:
             session.delete(relation)

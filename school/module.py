@@ -4,7 +4,7 @@ import re
 import shlex
 import tempfile
 
-from typing import Callable, Optional, Iterable, List
+from typing import Callable, Optional, List
 
 import discord
 
@@ -12,47 +12,29 @@ from discord.ext import commands
 
 from pie import i18n, logger, utils, check
 
-from .database import Teacher, Subject, Program, SubjectProgram, Obligation, Degree
+from .database import (
+    Teacher,
+    Subject,
+    Program,
+    SubjectProgram,
+    Obligation,
+    Degree,
+    Semester,
+)
 
 _ = i18n.Translator("modules/school").translate
 guild_log = logger.Guild.logger()
 bot_log = logger.Bot.logger()
 
-SEMESTERS = {"Winter", "Summer", "Both"}
-
-# TODO: CommandParser SHOULD BE MOVED TO CORE (PIE)
-
-
-class CommandParser(argparse.ArgumentParser):
-    """Patch ArgumentParser.
-
-    ArgumentParser calls sys.exit(2) on incorrect command,
-    which would take down the bot. This subclass catches the errors
-    and saves them in 'error_message' attribute.
-    """
-
-    error_message: Optional[str] = None
-
-    def error(self, message: str):
-        """Save the error message."""
-        self.error_message = message
-
-    def exit(self):
-        """Make sure the program _does not_ exit."""
-        pass
-
-    def parse_args(self, args: Iterable):
-        """Catch exceptions that do not occur when CLI program exits."""
-        returned = self.parse_known_args(args)
-        try:
-            args, argv = returned
-        except TypeError:
-            # There was an error and it is saved in 'error_message'
-            return None
-        return args
-
 
 class SchoolExtend:
+    """This class is used as static data holder that holds
+    information about embed extensions. When embeds are created,
+    corresponding extension functions are called and embed
+    informations are extended.
+
+    """
+
     _teacher_extension = []
     _subject_extension = []
     _program_extension = []
@@ -308,7 +290,15 @@ class School(commands.Cog):
             subject.institute = args.institute
 
         if args.semester:
-            subject.semester = args.semester
+            try:
+                semester = Semester(args.semester.upper())
+            except ValueError:
+                message = _(ctx, "Semester must be: {semesters}").format(
+                    semesters=Semester.get_formatted_list(ctx)
+                )
+                await ctx.reply(message)
+                return
+            subject.semester = semester
 
         if guarantor:
             subject.guarantor = guarantor
@@ -1138,27 +1128,17 @@ class School(commands.Cog):
         else:
             return "-"
 
-    @staticmethod
-    def _translate_semester(ctx, semester: str) -> str:
-        """Translate semester"""
-        if semester == "Winter":
-            return _(ctx, "Winter")
-        elif semester == "Summer":
-            return _(ctx, "Summer")
-        elif semester == "Both":
-            return _(ctx, "Both")
-        else:
-            return "-"
-
     async def _parse_subject_parameters(
         self, ctx: commands.Context, parameters: str
     ) -> Optional[argparse.Namespace]:
         """Parse parameters for subject editing"""
-        parser = CommandParser()
+        parser = utils.objects.CommandParser()
         parser.add_argument("--abbreviation", type=str, nargs="+", default=None)
         parser.add_argument("--name", type=str, nargs="+", default=None)
         parser.add_argument("--institute", type=str, nargs="+", default=None)
-        parser.add_argument("--semester", type=str, choices=SEMESTERS)
+        parser.add_argument(
+            "--semester", type=str, choices=[semester.name for semester in Semester]
+        )
         parser.add_argument("--guarantor", type=int, nargs="+", default=None)
         parser.add_argument("--teachers-add", type=int, nargs="+", default=None)
         parser.add_argument("--teachers-remove", type=int, nargs="+", default=None)
@@ -1183,7 +1163,7 @@ class School(commands.Cog):
         self, ctx: commands.Context, parameters: str
     ) -> Optional[argparse.Namespace]:
         """Parse parameters for program editing"""
-        parser = CommandParser()
+        parser = utils.objects.CommandParser()
         parser.add_argument("--abbreviation", type=str, nargs="+", default=None)
         parser.add_argument("--name", type=str, nargs="+", default=None)
         parser.add_argument("--degree", type=str, nargs="+", default=None)
@@ -1287,7 +1267,7 @@ class School(commands.Cog):
         )
         embed.add_field(
             name=_(ctx, "Semester"),
-            value=School._translate_semester(ctx, subject.semester),
+            value=subject.semester.translate(ctx),
         )
 
         if subject.url:
@@ -1413,7 +1393,7 @@ class School(commands.Cog):
     async def _import_programs(self, ctx, json_data, degree):
         """Import programs from JSON data"""
         programs = []
-        degree = Degree.from_json(degree)
+        degree = Degree.from_shortcut(degree)
         if degree == Degree.UNKNOWN:
             await guild_log.warning(
                 ctx.author,
@@ -1482,7 +1462,7 @@ class School(commands.Cog):
 
             subject.guarantor = guarantor[0] if len(guarantor) != 0 else None
             subject.teachers = teachers
-            
+
             subject.save()
 
             programs = await self._import_programs(ctx, programs_data, degree)

@@ -112,6 +112,15 @@ msgstr Nemáš žádné review učitele {name}.
 msgid for
 msgstr pro
 
+msgid Summer
+msgstr Letní
+
+msgid Winter
+msgstr Zimní
+
+msgid Both
+msgstr Oba
+
 msgid Full-time
 msgstr Prezenční
 
@@ -159,6 +168,9 @@ msgstr Předmět se zkratkou {abbreviation} již existuje!
 
 msgid You can't add and remove same teacher (ID: {id}).
 msgstr Nemůžeš přidat a odebrat stejného učitele (ID: {id}).
+
+msgid Semester must be: {semesters}
+msgstr Semester musí být: {semester}
 
 msgid Subject successfuly edited.
 msgstr Předmět úspěšně upraven.
@@ -252,15 +264,6 @@ msgstr Tato kombinace programu, stupně, předmětu, roku a povinnosti neexistuj
 
 msgid Subject and program succesfully unlinked.
 msgstr Předmět a program úspěšně rozvázány.
-
-msgid Winter
-msgstr Zimní
-
-msgid Summer
-msgstr Letní
-
-msgid Both
-msgstr Oba
 
 msgid Error parsing arguments:
 msgstr Chyba zpracování argumentů:
