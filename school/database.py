@@ -535,15 +535,6 @@ class Subject(database.base):
         session.commit()
 
     @staticmethod
-    def search(ctx, name: str) -> List[Subject]:
-        query = (
-            session.query(Subject)
-            .filter_by(guild_id=ctx.guild.id)
-            .filter(Subject.name.ilike(f"%{name}%"))
-        )
-        return query.all()
-
-    @staticmethod
     def get(ctx, abbreviation: str = None, name: str = None) -> List[Subject]:
         query = session.query(Subject).filter_by(guild_id=ctx.guild.id)
 
