@@ -611,14 +611,6 @@ class Subject(database.base):
     def save(self):
         session.commit()
 
-    def set_guarantor(self, guarantor: Teacher):
-        self.guarantor = guarantor[0] if len(guarantor) != 0 else None
-        session.commit()
-
-    def set_teachers(self, teachers: List[Teacher]):
-        self.teachers = teachers
-        session.commit()
-
     def add_teachers(self, teachers: List[Teacher]) -> List[str]:
         ignored = []
         for teacher in teachers:

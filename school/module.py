@@ -1480,8 +1480,10 @@ class School(commands.Cog):
                 )
                 continue
 
-            subject.set_guarantor(guarantor)
-            subject.set_teachers(teachers)
+            subject.guarantor = guarantor[0] if len(guarantor) != 0 else None
+            subject.teachers = teachers
+            
+            subject.save()
 
             programs = await self._import_programs(ctx, programs_data, degree)
 
