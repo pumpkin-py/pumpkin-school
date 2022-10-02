@@ -193,14 +193,11 @@ msgstr Školní ID
 msgid Teacher name
 msgstr Jméno učitele
 
-msgid Degree must be B for Bachelor, M for Masters or D for Doctoral.
-msgstr Stupeň musí být B pro Bakalářský, M pro Magisterský a D pro doktorský.
+msgid Degree must be: {degrees}
+msgstr Stupeň musí být: {degrees}
 
 msgid Program with abbreviation {abbreviation} and degree {degree} not found.
 msgstr Program se zkratkou {abbreviation} a stupňěm {degree} nenalezen.
-
-msgid Degree must be: {degrees}
-msgstr
 
 msgid Program list
 msgstr Seznam programů
@@ -236,7 +233,7 @@ msgid Teacher with ID {id} can't occure in add / remove argument more than once!
 msgstr Učitel s ID {id} se nemůže objevit v add / remove argumentu víc jak jednou!
 
 msgid Obligation must be: {obligations}
-msgstr
+msgstr Argument obligation musí být: {obligations}
 
 msgid This combination of program, degree, subject, year and obligation already exists.
 msgstr Tato kombinace programu, stupně, předmětu, roku a povinnosti již existuje.

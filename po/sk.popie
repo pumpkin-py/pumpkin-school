@@ -193,13 +193,10 @@ msgstr
 msgid Teacher name
 msgstr
 
-msgid Degree must be B for Bachelor, M for Masters or D for Doctoral.
+msgid Degree must be: {degrees}
 msgstr
 
 msgid Program with abbreviation {abbreviation} and degree {degree} not found.
-msgstr
-
-msgid Degree must be: {degrees}
 msgstr
 
 msgid Program list
