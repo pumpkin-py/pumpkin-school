@@ -177,18 +177,18 @@ class Teacher(database.base):
 
     @staticmethod
     def add(ctx, school_id: int, name: str) -> Teacher:
-        query = (
+        teacher = (
             session.query(Teacher)
             .filter_by(school_id=school_id, guild_id=ctx.guild.id)
             .one_or_none()
         )
 
-        if query:
-            return query
+        if not teacher:
+            teacher = Teacher(school_id=school_id, guild_id=ctx.guild.id) 
 
-        teacher = Teacher(school_id=school_id, name=name, guild_id=ctx.guild.id)
+        teacher.name = name
 
-        session.add(teacher)
+        session.merge(teacher)
         session.commit()
 
         return teacher
