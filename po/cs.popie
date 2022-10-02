@@ -170,7 +170,7 @@ msgid You can't add and remove same teacher (ID: {id}).
 msgstr Nemůžeš přidat a odebrat stejného učitele (ID: {id}).
 
 msgid Semester must be: {semesters}
-msgstr Semester musí být: {semester}
+msgstr Semester musí být: {semesters}
 
 msgid Subject successfuly edited.
 msgstr Předmět úspěšně upraven.
