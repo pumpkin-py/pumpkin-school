@@ -36,6 +36,60 @@ teachers_subjects = Table(
     ),
 )
 
+DEGREE_MAPPING = {
+    "B": "Bachelor",
+    "D": "Doctoral",
+    "M": "Masters",
+    "N": "Masters",
+}
+
+
+class Degree(enum.Enum):
+    BACHELOR = "B"
+    DOCTORAL = "D"
+    MASTERS = "M"
+    UNKNOWN = "-"
+
+    @staticmethod
+    def from_shortcut(shortcut: str) -> Degree:
+        shortcut = shortcut.upper()
+        if shortcut == "N":
+            shortcut = "M"
+
+        try:
+            degree = Degree(shortcut)
+        except ValueError:
+            return Degree.UNKNOWN
+
+        return degree
+
+    @staticmethod
+    def get_formatted_list(ctx) -> str:
+        list = ""
+        for degree in Degree:
+            if degree == Degree.UNKNOWN:
+                continue
+            list += (
+                "\n**"
+                + degree.value
+                + "** "
+                + _(ctx, "for")
+                + " "
+                + degree.translate(ctx)
+            )
+        return list
+
+    def translate(self, ctx) -> str:
+        """Translate degree"""
+        if self == Obligation.BACHELOR:
+            return _(ctx, "Bachelor")
+        elif self == Obligation.DOCTORAL:
+            return _(ctx, "Doctoral")
+        elif self == Obligation.MASTERS:
+            return _(ctx, "Masters")
+        else:
+            return "-"
+
 
 class Obligation(enum.Enum):
     OPTIONAL = "O"
@@ -45,8 +99,22 @@ class Obligation(enum.Enum):
     RECOMMENDED = "D"
     OTHER = "O"
 
+    @staticmethod
+    def get_formatted_list(ctx) -> str:
+        list = ""
+        for obligation in Obligation:
+            list += (
+                "\n**"
+                + obligation.value
+                + "** "
+                + _(ctx, "for")
+                + " "
+                + obligation.translate(ctx)
+            )
+        return list
+
     def translate(self, ctx) -> str:
-        """Translate obligation from it's Czech shortcut"""
+        """Translate obligation"""
         if self == Obligation.OPTIONAL:
             return _(ctx, "Optional")
         elif self == Obligation.COMPULSORY_OPTIONAL:
@@ -184,7 +252,7 @@ class Teacher(database.base):
         )
 
         if not teacher:
-            teacher = Teacher(school_id=school_id, guild_id=ctx.guild.id) 
+            teacher = Teacher(school_id=school_id, guild_id=ctx.guild.id)
 
         teacher.name = name
 
@@ -262,7 +330,7 @@ class Program(database.base):
     guild_id = Column(BigInteger)
     abbreviation = Column(String)
     name = Column(String)
-    degree = Column(String)
+    degree = Column(Enum(Degree))
     subjects = relationship(
         "SubjectProgram",
         back_populates="program",

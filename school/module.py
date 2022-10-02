@@ -12,18 +12,11 @@ from discord.ext import commands
 
 from pie import i18n, logger, utils, check
 
-from .database import Teacher, Subject, Program, SubjectProgram, Obligation
+from .database import Teacher, Subject, Program, SubjectProgram, Obligation, Degree
 
 _ = i18n.Translator("modules/school").translate
 guild_log = logger.Guild.logger()
 bot_log = logger.Bot.logger()
-
-DEGREE_MAPPING = {
-    "B": "Bachelor",
-    "D": "Doctoral",
-    "M": "Masters",
-    "N": "Masters",
-}
 
 SEMESTERS = {"Winter", "Summer", "Both"}
 
@@ -586,16 +579,14 @@ class School(commands.Cog):
             degree: Program degree (B, M or D)
             abbreviation: Short name of program
         """
-        degree = degree.upper()
+        degree = Degree.from_shortcut(degree)
         abbreviation = abbreviation.upper()
 
-        if degree and degree not in DEGREE_MAPPING:
-            await ctx.reply(
-                _(
-                    ctx,
-                    "Degree must be B for Bachelor, M for Masters or D for Doctoral.",
-                )
+        if degree == Degree.UNKNOWN:
+            message = _(ctx, "Degree must be: {degrees}").format(
+                degrees=Degree.get_formatted_list(ctx)
             )
+            await ctx.reply(message)
             return
 
         program = Program.get_by_abbreviation(ctx, degree, abbreviation)
@@ -617,15 +608,13 @@ class School(commands.Cog):
     @program_.command(name="list", aliases=["search"])
     async def program_list(self, ctx, *, degree: str = None):
         """List programs"""
-        degree = degree.upper() if degree is not None else None
+        degree = Degree.from_shortcut(degree) if degree is not None else None
 
-        if degree and degree not in DEGREE_MAPPING:
-            ctx.reply(
-                _(
-                    ctx,
-                    "Degree must be B for Bachelor, M for Masters or D for Doctoral.",
-                )
+        if degree == Degree.UNKNOWN:
+            message = _(ctx, "Degree must be: {degrees}").format(
+                degrees=Degree.get_formatted_list(ctx)
             )
+            await ctx.reply(message)
             return
 
         programs = Program.get_all(ctx, degree)
@@ -666,17 +655,8 @@ class School(commands.Cog):
             --name: New program name
             --degree: Program degree
         """
-        degree = degree.upper()
         abbreviation = abbreviation.upper()
-
-        if degree not in DEGREE_MAPPING:
-            await ctx.reply(
-                _(
-                    ctx,
-                    "Degree must be B for Bachelor, M for Masters or D for Doctoral.",
-                )
-            )
-            return
+        degree = Degree.from_shortcut(degree)
 
         program = Program.get_by_abbreviation(ctx, degree, abbreviation)
         if not program:
@@ -694,25 +674,20 @@ class School(commands.Cog):
         if args is None:
             return
 
-        if args.degree and args.degree.upper() not in DEGREE_MAPPING:
-            await ctx.reply(
-                _(
-                    ctx,
-                    "New degree must be B for Bachelor, M for Masters or D for Doctoral.",
+        if args.degree:
+            degree = Degree.from_shortcut(args.degree)
+            if degree == Degree.UNKNOWN:
+                message = _(ctx, "Degree must be: {degrees}").format(
+                    degrees=Degree.get_formatted_list(ctx)
                 )
-            )
-            return
+                await ctx.reply(message)
+                return
 
         if args.degree or args.abbreviation:
-            check_degree = (
-                DEGREE_MAPPING[args.degree.upper()] if args.degree else program.degree
-            )
             check_abbreviation = (
                 args.abbreviation.upper() if args.abbreviation else program.abbreviation
             )
-            check_program = Program.get_by_abbreviation(
-                ctx, check_degree, check_abbreviation
-            )
+            check_program = Program.get_by_abbreviation(ctx, degree, check_abbreviation)
             if check_program and check_program is not program:
                 await ctx.reply(
                     _(
@@ -720,12 +695,10 @@ class School(commands.Cog):
                         "A program with the abbreviation '{abbreviation}' and '{degree}' already exists.",
                     ).format(
                         abbreviation=check_abbreviation,
-                        degree=School._translate_degree(ctx, check_degree),
+                        degree=School._translate_degree(ctx, degree.value),
                     )
                 )
                 return
-
-        degree = DEGREE_MAPPING[args.degree.upper()] if args.degree else None
         program.edit(args.abbreviation, args.name, degree)
 
         await ctx.reply(_(ctx, "Program successfuly edited."))
@@ -748,13 +721,13 @@ class School(commands.Cog):
         degree = degree.upper()
         abbreviation = abbreviation.upper()
 
-        if degree not in DEGREE_MAPPING:
-            await ctx.reply(
-                _(
-                    ctx,
-                    "Degree must be B for Bachelor, M for Masters or D for Doctoral.",
-                )
+        degree = Degree.from_shortcut(degree)
+
+        if degree == Degree.UNKNOWN:
+            message = _(ctx, "Degree must be: {degrees}").format(
+                degrees=Degree.get_formatted_list(ctx)
             )
+            await ctx.reply(message)
             return
 
         program = Program.get_by_abbreviation(ctx, degree, abbreviation)
@@ -1015,17 +988,9 @@ class School(commands.Cog):
         try:
             obligation = Obligation(obligation)
         except ValueError:
-            message = _(ctx, "Obligation must be:")
-            for obligation in [o.value for o in Obligation]:
-                message += (
-                    "\n**"
-                    + obligation.value
-                    + "** "
-                    + _(ctx, "for")
-                    + " "
-                    + obligation.translate(ctx)
-                )
-
+            message = _(ctx, "Obligation must be: {obligations}").format(
+                obligations=Obligation.get_formatted_list(ctx)
+            )
             await ctx.reply(message)
             return
 
@@ -1091,16 +1056,9 @@ class School(commands.Cog):
         try:
             obligation = Obligation(obligation)
         except ValueError:
-            message = _(ctx, "Obligation must be:")
-            for obligation in [o.value for o in Obligation]:
-                message += (
-                    "\n**"
-                    + obligation.value
-                    + "** "
-                    + _(ctx, "for")
-                    + " "
-                    + obligation.translate(ctx)
-                )
+            message = _(ctx, "Obligation must be: {obligations}").format(
+                obligations=Obligation.get_formatted_list(ctx)
+            )
 
             await ctx.reply(message)
             return
@@ -1413,19 +1371,25 @@ class School(commands.Cog):
     async def _import_programs(self, ctx, json_data, degree):
         """Import programs from JSON data"""
         programs = []
+        degree = Degree.from_json(degree)
+        if degree == Degree.UNKNOWN:
+            await guild_log.warning(
+                ctx.author,
+                ctx.channel,
+                f'Could not find mapping for degree "{degree}".',
+            )
         for program_data in json_data:
-            spec_degree = re.search(r"^[A-z]-", program_data)
-            if spec_degree:
-                spec_degree = spec_degree.group()
-                if spec_degree[0] in DEGREE_MAPPING:
-                    spec_degree = DEGREE_MAPPING[spec_degree[0]]
-                else:
+            spec_degree_shortcut = re.search(r"^[A-z]-", program_data)
+            if spec_degree_shortcut:
+                spec_degree_shortcut = spec_degree_shortcut.group()
+                spec_degree = Degree.from_shortcut(spec_degree_shortcut)
+                if spec_degree == Degree.UNKNOWN:
                     await guild_log.warning(
                         ctx.author,
                         ctx.channel,
-                        f'Could not find mapping for spec_degree "{spec_degree}".',
+                        f'Could not find mapping for spec_degree "{spec_degree_shortcut}".',
                     )
-                    spec_degree += "UNKNOWN"
+                    spec_degree = None
                 program_data = re.sub(r"^[A-z]-", "", program_data)
             program_info = program_data.split("-")
             programs.append(

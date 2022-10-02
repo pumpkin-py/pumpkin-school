@@ -109,6 +109,18 @@ msgstr Tvoje recenze učitele {name} byla přidána.
 msgid You have no review of teacher {name}.
 msgstr Nemáš žádné review učitele {name}.
 
+msgid for
+msgstr pro
+
+msgid Bachelor
+msgstr Bakalářské
+
+msgid Doctoral
+msgstr Doktorské
+
+msgid Masters
+msgstr Magisterské
+
 msgid Optional
 msgstr Volitelný
 
@@ -187,11 +199,11 @@ msgstr Stupeň musí být B pro Bakalářský, M pro Magisterský a D pro doktor
 msgid Program with abbreviation {abbreviation} and degree {degree} not found.
 msgstr Program se zkratkou {abbreviation} a stupňěm {degree} nenalezen.
 
+msgid Degree must be: {degrees}
+msgstr
+
 msgid Program list
 msgstr Seznam programů
-
-msgid New degree must be B for Bachelor, M for Masters or D for Doctoral.
-msgstr Nový stupeň musí být B pro Bakalářský, M pro Magisterský nebo D pro Doktorský.
 
 msgid A program with the abbreviation '{abbreviation}' and '{degree}' already exists.
 msgstr Program se zkratkou '{abbreviation}' a stupněm '{degree}' již existuje.
@@ -223,11 +235,8 @@ msgstr Zpracovaných záznamů: {count}
 msgid Teacher with ID {id} can't occure in add / remove argument more than once!
 msgstr Učitel s ID {id} se nemůže objevit v add / remove argumentu víc jak jednou!
 
-msgid Obligation must be:
-msgstr Argument obligation musí být:
-
-msgid for
-msgstr pro
+msgid Obligation must be: {obligations}
+msgstr
 
 msgid This combination of program, degree, subject, year and obligation already exists.
 msgstr Tato kombinace programu, stupně, předmětu, roku a povinnosti již existuje.
@@ -240,15 +249,6 @@ msgstr Tato kombinace programu, stupně, předmětu, roku a povinnosti neexistuj
 
 msgid Subject and program succesfully unlinked.
 msgstr Předmět a program úspěšně rozvázány.
-
-msgid Bachelor
-msgstr Bakalářské
-
-msgid Masters
-msgstr Magisterské
-
-msgid Doctoral
-msgstr Doktorské
 
 msgid Winter
 msgstr Zimní

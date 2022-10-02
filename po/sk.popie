@@ -109,6 +109,18 @@ msgstr
 msgid You have no review of teacher {name}.
 msgstr
 
+msgid for
+msgstr
+
+msgid Bachelor
+msgstr
+
+msgid Doctoral
+msgstr
+
+msgid Masters
+msgstr
+
 msgid Optional
 msgstr
 
@@ -187,10 +199,10 @@ msgstr
 msgid Program with abbreviation {abbreviation} and degree {degree} not found.
 msgstr
 
-msgid Program list
+msgid Degree must be: {degrees}
 msgstr
 
-msgid New degree must be B for Bachelor, M for Masters or D for Doctoral.
+msgid Program list
 msgstr
 
 msgid A program with the abbreviation '{abbreviation}' and '{degree}' already exists.
@@ -223,10 +235,7 @@ msgstr
 msgid Teacher with ID {id} can't occure in add / remove argument more than once!
 msgstr
 
-msgid Obligation must be:
-msgstr
-
-msgid for
+msgid Obligation must be: {obligations}
 msgstr
 
 msgid This combination of program, degree, subject, year and obligation already exists.
@@ -239,15 +248,6 @@ msgid This combination of program, degree, subject, year and obligation does not
 msgstr
 
 msgid Subject and program succesfully unlinked.
-msgstr
-
-msgid Bachelor
-msgstr
-
-msgid Masters
-msgstr
-
-msgid Doctoral
 msgstr
 
 msgid Winter
