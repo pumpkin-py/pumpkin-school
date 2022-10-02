@@ -374,15 +374,16 @@ class Program(database.base):
     )
 
     @staticmethod
-    def get_by_abbreviation(ctx, degree: str, abbreviation: str) -> Optional[Program]:
-        query = (
-            session.query(Program)
-            .filter_by(guild_id=ctx.guild.id)
-            .filter_by(abbreviation=abbreviation)
-            .filter(Program.degree.like(f"{degree}%"))
-        )
+    def get(ctx, degree: Degree = None, abbreviation: str = None) -> Optional[Program]:
+        query = session.query(Program).filter_by(guild_id=ctx.guild.id)
 
-        return query.one_or_none()
+        if degree:
+            query = query.filter_by(degree=degree)
+
+        if abbreviation:
+            query = query.filter_by(abbreviation=abbreviation)
+
+        return query.all()
 
     def edit(self, abbreviation, name, degree):
         if abbreviation:
@@ -393,15 +394,6 @@ class Program(database.base):
             self.degree = degree
 
         session.commit()
-
-    def get_all(ctx, degree: str) -> List[Program]:
-        query = session.query(Program).filter_by(guild_id=ctx.guild.id)
-
-        if degree:
-            degree = degree.upper()
-            query = query.filter(Program.degree.like(f"{degree}%"))
-
-        return query.all()
 
     def get_or_create(ctx, abbreviation: str, degree: str) -> Program:
         query = (

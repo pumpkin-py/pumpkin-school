@@ -589,9 +589,9 @@ class School(commands.Cog):
             await ctx.reply(message)
             return
 
-        program = Program.get_by_abbreviation(ctx, degree, abbreviation)
+        program = Program.get(ctx, degree=degree, abbreviation=abbreviation)
 
-        if not program:
+        if len(program) != 1:
             await ctx.reply(
                 _(
                     ctx,
@@ -600,6 +600,7 @@ class School(commands.Cog):
             )
             return
 
+        program = program[0]
         embed = await self._get_program_embed(ctx, program, True)
 
         await ctx.reply(embed=embed)
@@ -617,7 +618,7 @@ class School(commands.Cog):
             await ctx.reply(message)
             return
 
-        programs = Program.get_all(ctx, degree)
+        programs = Program.get(ctx, degree=degree)
         sorted_programs = {}
         for program in programs:
             degree = program.degree if program.degree else "-"
@@ -658,8 +659,8 @@ class School(commands.Cog):
         abbreviation = abbreviation.upper()
         degree = Degree.from_shortcut(degree)
 
-        program = Program.get_by_abbreviation(ctx, degree, abbreviation)
-        if not program:
+        program = Program.get(ctx, degree=degree, abbreviation=abbreviation)
+        if len(program) != 1:
             await ctx.reply(
                 _(
                     ctx,
@@ -670,6 +671,7 @@ class School(commands.Cog):
                 )
             )
             return
+        program = program[0]
         args = await self._parse_program_parameters(ctx, parameters)
         if args is None:
             return
@@ -687,8 +689,10 @@ class School(commands.Cog):
             check_abbreviation = (
                 args.abbreviation.upper() if args.abbreviation else program.abbreviation
             )
-            check_program = Program.get_by_abbreviation(ctx, degree, check_abbreviation)
-            if check_program and check_program is not program:
+            check_program = Program.get(
+                ctx, degree=degree, abbreviation=check_abbreviation
+            )
+            if len(check_program) != 0 and check_program[0] is not program:
                 await ctx.reply(
                     _(
                         ctx,
@@ -730,8 +734,8 @@ class School(commands.Cog):
             await ctx.reply(message)
             return
 
-        program = Program.get_by_abbreviation(ctx, degree, abbreviation)
-        if not program:
+        program = Program.get(ctx, degree=degree, abbreviation=abbreviation)
+        if len(program) != 1:
             await ctx.reply(
                 _(
                     ctx,
@@ -739,6 +743,8 @@ class School(commands.Cog):
                 ).format(abbreviation=abbreviation, degree=degree)
             )
             return
+
+        program = program[0]
 
         embed = await self._get_program_embed(ctx, program, True)
         embed.title = (
@@ -963,8 +969,8 @@ class School(commands.Cog):
             year: Year in which students of program has this subject
             obligation: Subject obligation for this program
         """
-        program = Program.get_by_abbreviation(ctx, degree, program_abbreviation)
-        if not program:
+        program = Program.get(ctx, degree=degree, abbreviation=program_abbreviation)
+        if len(program) != 1:
             await ctx.reply(
                 _(
                     ctx,
@@ -972,6 +978,8 @@ class School(commands.Cog):
                 ).format(abbreviation=program_abbreviation, degree=degree)
             )
             return
+
+        program = program[0]
 
         subject = Subject.get_by_abbreviation(ctx, subject_abbreviation)
 
@@ -1031,8 +1039,8 @@ class School(commands.Cog):
             year: Year in which students of program has this subject
             obligation: Subject obligation for this program
         """
-        program = Program.get_by_abbreviation(ctx, degree, program_abbreviation)
-        if not program:
+        program = Program.get(ctx, degree=degree, abbreviation=program_abbreviation)
+        if len(program) != 1:
             await ctx.reply(
                 _(
                     ctx,
@@ -1040,6 +1048,8 @@ class School(commands.Cog):
                 ).format(abbreviation=program_abbreviation, degree=degree)
             )
             return
+
+        program = program[0]
 
         subject = Subject.get_by_abbreviation(ctx, subject_abbreviation)
 
