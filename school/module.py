@@ -151,15 +151,17 @@ class School(commands.Cog):
         Args:
             abbreviation: Short name of subject
         """
-        subject = Subject.get_by_abbreviation(ctx, abbreviation)
+        subject = Subject.get(ctx, abbreviation=abbreviation)
 
-        if not subject:
+        if len(subject) != 1:
             await ctx.reply(
                 _(ctx, "Subject with abbreviation {abbreviation} not found.").format(
                     abbreviation=abbreviation
                 )
             )
             return
+
+        subject = subject[0]
 
         embed = await self._get_subject_embed(ctx, subject, True)
 
@@ -177,7 +179,7 @@ class School(commands.Cog):
             await ctx.reply(_(ctx, "Name must be atleast 3 characters long."))
             return
 
-        subjects = Subject.search(ctx, name)
+        subjects = Subject.get(ctx, name=name)
 
         if len(subjects) == 0:
             await ctx.reply(
@@ -232,14 +234,17 @@ class School(commands.Cog):
             --teachers-add: List of teacher's ID's to add
             --teachers-remove: List of teacher's ID's to remove
         """
-        subject = Subject.get_by_abbreviation(ctx, abbreviation)
-        if not subject:
+        subject = Subject.get(ctx, abbreviation=abbreviation)
+        if len(subject) != 1:
             await ctx.reply(
                 _(ctx, "Subject with abbreviation {abbreviation} not found.").format(
                     abbreviation=abbreviation
                 )
             )
             return
+
+        subject = subject[0]
+
         args = await self._parse_subject_parameters(ctx, parameters)
         if args is None:
             return
@@ -257,7 +262,7 @@ class School(commands.Cog):
         if args.abbreviation:
             if subject.abbreviation == args.abbreviation:
                 args.abbreviation = None
-            elif Subject.get_by_abbreviation(ctx, args.abbreviation):
+            elif len(Subject.get(ctx, abbreviation=args.abbreviation)) != 0:
                 await ctx.reply(
                     _(
                         ctx, "Subject with abbreviation {abbreviation} already exists!"
@@ -293,9 +298,22 @@ class School(commands.Cog):
         if teachers_remove:
             remove_ignore = subject.remove_teachers(teachers_remove)
 
-        subject.edit(
-            args.abbreviation, args.name, args.institute, args.semester, guarantor
-        )
+        if args.abbreviation:
+            subject.abbreviation = args.abbreviation
+
+        if args.name:
+            subject.name = args.name
+
+        if args.institute:
+            subject.institute = args.institute
+
+        if args.semester:
+            subject.semester = args.semester
+
+        if guarantor:
+            subject.guarantor = guarantor
+
+        subject.save
 
         message = _(ctx, "Subject successfuly edited.")
 
@@ -325,14 +343,16 @@ class School(commands.Cog):
         Args:
             abbreviation: Subject abbreviation
         """
-        subject = Subject.get_by_abbreviation(ctx, abbreviation)
-        if not subject:
+        subject = Subject.get(ctx, abbreviation=abbreviation)
+        if len(subject) != 1:
             await ctx.reply(
                 _(ctx, "Subject with abbreviation {abbreviation} not found.").format(
                     abbreviation=abbreviation
                 )
             )
             return
+
+        subject = subject[0]
 
         embed = await self._get_subject_embed(ctx, subject, True)
         embed.title = (
@@ -487,7 +507,8 @@ class School(commands.Cog):
 
         teacher = teacher[0]
 
-        teacher.edit(name)
+        teacher.name = name
+        teacher.save()
 
         await ctx.reply(_(ctx, "Teacher succesfuly edited."))
 
@@ -703,7 +724,14 @@ class School(commands.Cog):
                     )
                 )
                 return
-        program.edit(args.abbreviation, args.name, degree)
+        if args.abbreviation:
+            program.abbreviation = args.abbreviation
+        if args.name:
+            program.name = args.name
+
+        program.degree = degree
+
+        program.save()
 
         await ctx.reply(_(ctx, "Program successfuly edited."))
 
@@ -981,15 +1009,17 @@ class School(commands.Cog):
 
         program = program[0]
 
-        subject = Subject.get_by_abbreviation(ctx, subject_abbreviation)
+        subject = Subject.get(ctx, abbreviation=subject_abbreviation)
 
-        if not subject:
+        if len(subject) != 1:
             await ctx.reply(
                 _(ctx, "Subject with abbreviation {abbreviation} not found.").format(
                     abbreviation=subject_abbreviation
                 )
             )
             return
+
+        subject = subject[0]
 
         obligation = obligation.upper()
 
@@ -1051,15 +1081,17 @@ class School(commands.Cog):
 
         program = program[0]
 
-        subject = Subject.get_by_abbreviation(ctx, subject_abbreviation)
+        subject = Subject.get(ctx, abbreviation=subject_abbreviation)
 
-        if not subject:
+        if len(subject) != 1:
             await ctx.reply(
                 _(ctx, "Subject with abbreviation {abbreviation} not found.").format(
                     abbreviation=subject_abbreviation
                 )
             )
             return
+
+        subject = subject[0]
 
         obligation = obligation.upper()
 

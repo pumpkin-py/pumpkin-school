@@ -317,9 +317,7 @@ class Teacher(database.base):
 
         return query.all()
 
-    def edit(self, name):
-        if name:
-            self.name = name
+    def save(self):
         session.commit()
 
     def is_used(self) -> bool:
@@ -385,17 +383,10 @@ class Program(database.base):
 
         return query.all()
 
-    def edit(self, abbreviation, name, degree):
-        if abbreviation:
-            self.abbreviation = abbreviation
-        if name:
-            self.name = name
-        if degree:
-            self.degree = degree
-
+    def save(self):
         session.commit()
 
-    def get_or_create(ctx, abbreviation: str, degree: str) -> Program:
+    def add(ctx, abbreviation: str, degree: str) -> Program:
         query = (
             session.query(Program)
             .filter_by(guild_id=ctx.guild.id, abbreviation=abbreviation, degree=degree)
@@ -553,12 +544,14 @@ class Subject(database.base):
         return query.all()
 
     @staticmethod
-    def get_by_abbreviation(ctx, abbreviation: str) -> Optional[Subject]:
-        query = (
-            session.query(Subject)
-            .filter_by(guild_id=ctx.guild.id)
-            .filter_by(abbreviation=abbreviation.upper())
-        )
+    def get(ctx, abbreviation: str = None, name: str = None) -> List[Subject]:
+        query = session.query(Subject).filter_by(guild_id=ctx.guild.id)
+
+        if abbreviation:
+            query = query.filter_by(abbreviation=abbreviation.upper())
+
+        if name:
+            query = query.filter(Subject.name.ilike(f"%{name}%"))
 
         return query.one_or_none()
 
@@ -624,18 +617,7 @@ class Subject(database.base):
         session.delete(self)
         session.commit()
 
-    def edit(self, abbreviation, name, institute, semester, guarantor):
-        if abbreviation:
-            self.abbreviation = abbreviation
-        if name:
-            self.name = name
-        if institute:
-            self.institute = institute
-        if semester:
-            self.semester = semester
-        if guarantor:
-            self.guarantor = guarantor
-
+    def save(self):
         session.commit()
 
     def set_guarantor(self, guarantor: Teacher):
@@ -676,7 +658,7 @@ class Subject(database.base):
             session.delete(relation)
 
         for program_data in programs:
-            program = Program.get_or_create(
+            program = Program.add(
                 ctx, program_data["abbreviation"], program_data["degree"]
             )
             sub_prog = SubjectProgram(
