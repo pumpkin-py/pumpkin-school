@@ -5,12 +5,14 @@ import enum
 from sqlalchemy import (
     BigInteger,
     Column,
+    DateTime,
     Enum,
+    ForeignKey,
     Integer,
     String,
-    ForeignKey,
     Table,
     UniqueConstraint,
+    func,
     not_,
 )
 from sqlalchemy.orm import relationship
@@ -383,6 +385,7 @@ class Teacher(database.base):
     school_id = Column(Integer)
     guild_id = Column(BigInteger)
     name = Column(String)
+    modified_time = Column(DateTime, server_default=func.now(), onupdate=func.now())
     subjects = relationship(
         "Subject",
         secondary=teachers_subjects,
@@ -482,8 +485,8 @@ class Teacher(database.base):
 
         query = session.query(Teacher).filter_by(guild_id=ctx.guild.id)
 
-        for func in Teacher._used_filter_generators:
-            query = query.filter(not_(func()))
+        for function in Teacher._used_filter_generators:
+            query = query.filter(not_(function()))
 
         query.delete(synchronize_session="fetch")
 
@@ -501,8 +504,8 @@ class Teacher(database.base):
         """
         query = session.query(Teacher).filter_by(guild_id=ctx.guild.id)
 
-        for func in Teacher._used_filter_generators:
-            query = query.filter(not_(func()))
+        for function in Teacher._used_filter_generators:
+            query = query.filter(not_(function()))
 
         return query.all()
 
@@ -515,8 +518,8 @@ class Teacher(database.base):
 
         Returns:
             True if tacher is used, False if not."""
-        for func in Teacher._is_used_checks:
-            if func(self):
+        for function in Teacher._is_used_checks:
+            if function(self):
                 return True
 
         return False
@@ -566,6 +569,7 @@ class Program(database.base):
     degree = Column(Enum(Degree))
     language = Column(String)
     type = Column(Enum(ProgramType))
+    modified_time = Column(DateTime, server_default=func.now(), onupdate=func.now())
     subjects = relationship(
         "SubjectProgram",
         back_populates="program",
@@ -701,6 +705,7 @@ class Subject(database.base):
         secondary=teachers_subjects,
         back_populates="subjects",
     )
+    modified_time = Column(DateTime, server_default=func.now(), onupdate=func.now())
     programs = relationship(
         "SubjectProgram", back_populates="subject", cascade="all, delete-orphan, delete"
     )
@@ -752,8 +757,8 @@ class Subject(database.base):
         """
         query = session.query(Subject).filter_by(guild_id=ctx.guild.id)
 
-        for func in Subject._used_filter_generators:
-            query = query.filter(not_(func()))
+        for function in Subject._used_filter_generators:
+            query = query.filter(not_(function()))
 
         return query.all()
 
@@ -767,8 +772,8 @@ class Subject(database.base):
 
         query = session.query(Subject).filter_by(guild_id=ctx.guild.id)
 
-        for func in Subject._used_filter_generators:
-            query = query.filter(not_(func()))
+        for function in Subject._used_filter_generators:
+            query = query.filter(not_(function()))
 
         query.delete(synchronize_session="fetch")
 
@@ -854,8 +859,8 @@ class Subject(database.base):
 
     def is_used(self) -> bool:
         """Checks if subject is used based on check functions."""
-        for func in Subject._is_used_checks:
-            if func(self):
+        for function in Subject._is_used_checks:
+            if function(self):
                 return True
 
         return False
