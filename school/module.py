@@ -275,10 +275,10 @@ class School(commands.Cog):
         )
 
         if teachers_add:
-            add_ignore = subject.add_teachers(teachers_add)
+            added_teachers = subject.add_teachers(teachers_add)
 
         if teachers_remove:
-            remove_ignore = subject.remove_teachers(teachers_remove)
+            removed_teachers = subject.remove_teachers(teachers_remove)
 
         if args.abbreviation:
             subject.abbreviation = args.abbreviation
@@ -307,15 +307,15 @@ class School(commands.Cog):
 
         message = _(ctx, "Subject successfuly edited.")
 
-        if teachers_add and add_ignore:
-            message += "\n" + _(ctx, "Already teaching teachers: {teachers}").format(
-                teachers=", ".join(add_ignore)
+        if teachers_add and added_teachers:
+            message += "\n" + _(ctx, "Added teachers: {teachers}").format(
+                teachers=", ".join(added_teachers)
             )
 
-        if teachers_remove and remove_ignore:
-            message += "\n" + _(
-                ctx, "Can't remove teachers that don't teach this subject: {teachers}"
-            ).format(teachers=", ".join(remove_ignore))
+        if teachers_remove and removed_teachers:
+            message += "\n" + _(ctx, "Removed teachers: {teachers}").format(
+                teachers=", ".join(removed_teachers)
+            )
 
         await ctx.reply(message)
 

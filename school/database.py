@@ -883,16 +883,15 @@ class Subject(database.base):
         Returns:
             ID's of teachers that were not teaching subject.
         """
-        ignored = []
+        added = []
         for teacher in teachers:
-            if teacher in self.teachers:
-                ignored.append(str(teacher.school_id))
-            else:
+            if teacher not in self.teachers:
+                added.append(str(teacher.school_id))
                 self.teachers.append(teacher)
 
         session.commit()
 
-        return ignored
+        return added
 
     def remove_teachers(self, teachers: List[Teacher]) -> List[str]:
         """Remove  teachers to subject.
@@ -901,18 +900,17 @@ class Subject(database.base):
             teachers: List of teachers
 
         Returns:
-            ID's of teachers that were not teaching subject.
+            ID's of teachers that were teaching subject.
         """
-        ignored = []
+        removed = []
         for teacher in teachers:
-            if teacher not in self.teachers:
-                ignored.append(str(teacher.school_id))
-            else:
+            if teacher in self.teachers:
+                removed.append(str(teacher.school_id))
                 self.teachers.remove(teacher)
 
         session.commit()
 
-        return ignored
+        return removed
 
     def import_programs(self, ctx, programs: Dict):
         """Remove all relations between subject and programs
