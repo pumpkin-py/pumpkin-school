@@ -71,6 +71,25 @@ Teacher.add_used_filter_generator(teacher_teacherreview_filter_generator)
 Teacher.add_used_filter_generator(teacher_subjectreview_filter_generator)
 Teacher.add_is_used_check(teacher_is_used)
 
+# SUBJECT USAGE CHECK
+
+def subject_subjectreview_filter_generator():
+    filter = exists().where(Subject.idx == SubjectReview.subject_id)
+    return filter
+    
+def subject_is_used(subject: Subject) -> bool:
+    query_subject_review = (
+        session.query(SubjectReview)
+        .filter_by(SubjectReview.subject_id == subject.idx)
+        .limit(1)
+        .one_or_none()
+        is not None
+    )
+    
+    return query_subject_review
+    
+Subject.add_used_filter_generator(subject_subjectreview_filter_generator)
+Subject.add_is_used_check(subject_is_used)
 
 class SubjectRelevance(database.base):
     """Holds user votes for subject reviews.
