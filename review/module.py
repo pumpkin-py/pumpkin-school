@@ -388,7 +388,7 @@ class Review(commands.Cog):
         """Add and return review.
 
         Returns: review if success, None otherwise"""
-        subject = Subject.get_by_abbreviation(ctx, abbreviation)
+        subject = Subject.get(ctx=ctx, abbreviation=abbreviation)
 
         if anonymous:
             await utils.discord.delete_message(ctx.message)
@@ -409,8 +409,6 @@ class Review(commands.Cog):
             await ctx.send(_(ctx, "Review must contain text."))
             return
 
-        review = SubjectReview.get_member_review(ctx.author, subject)
-
         review = SubjectReview.add(ctx, subject, grade, anonymous, text)
 
         return review
@@ -421,7 +419,7 @@ class Review(commands.Cog):
         """Add and return review.
 
         Returns: review if success, None otherwise"""
-        teacher = Teacher.get_by_sid(ctx, teacher_id)
+        teacher = Teacher.get(ctx=ctx, school_id=teacher_id)
 
         if anonymous:
             await utils.discord.delete_message(ctx.message)
@@ -440,7 +438,7 @@ class Review(commands.Cog):
             await ctx.send(_(ctx, "Review must contain text."))
             return
 
-        review = TeacherReview.get_member_review(ctx.author, teacher)
+        review = TeacherReview.get(ctx=ctx, author=ctx.author, teacher=teacher)
 
         review = TeacherReview.add(ctx, teacher, grade, anonymous, text)
 
@@ -472,13 +470,13 @@ class Review(commands.Cog):
         Args:
             abbreviation: Subject's abbreviation
         """
-        subject = Subject.get_by_abbreviation(ctx, abbreviation)
+        subject = Subject.get(ctx=ctx, abbreviation=abbreviation)
         if subject is None:
             return await ctx.reply(
                 _(ctx, "Subject with abbreviation {abbreviation} not found.")
             )
 
-        reviews = SubjectReview.get_all_by_subject(subject)
+        reviews = SubjectReview.get(ctx=ctx, subject=subject)
 
         if not reviews:
             return await ctx.reply(_(ctx, "There are no reviews for this subject."))
@@ -496,7 +494,7 @@ class Review(commands.Cog):
     @review_subject_.command(name="mine", aliases=["my-list", "mylist"])
     async def review_subject_mine(self, ctx):
         """Get list of all your reviewed subjects"""
-        reviews = SubjectReview.get_all_by_author(ctx)
+        reviews = SubjectReview.get(ctx=ctx, author=ctx.author)
 
         if not reviews:
             return await ctx.reply(_(ctx, "You have no reviews."))
@@ -590,7 +588,7 @@ class Review(commands.Cog):
             abbreviation: Subject abbreviation
         """
         abbreviation = abbreviation.upper()
-        subject = Subject.get_by_abbreviation(ctx, abbreviation)
+        subject = Subject.get(ctx=ctx, abbreviation=abbreviation)
 
         if not subject:
             await ctx.reply(
@@ -600,7 +598,7 @@ class Review(commands.Cog):
             )
             return
 
-        review = SubjectReview.get_member_review(ctx.author, subject)
+        review = SubjectReview.get(ctx=ctx.guild.id, author=ctx.author, subject=subject)
 
         if review is None:
             return await ctx.send(
@@ -644,7 +642,7 @@ class Review(commands.Cog):
         Args:
             idx: ID of review
         """
-        review = SubjectReview.get_by_idx(ctx, idx)
+        review = SubjectReview.get(ctx=ctx, idx=idx)
 
         if not review:
             return await ctx.send(_(ctx, "No review with ID {id}.").format(id=idx))
@@ -691,13 +689,13 @@ class Review(commands.Cog):
         Args:
             teacher_id: Teacher's school ID
         """
-        teacher = Teacher.get_by_sid(ctx, teacher_id)
+        teacher = Teacher.get(ctx=ctx, school_id=teacher_id)
         if teacher is None:
             return await ctx.reply(
                 _(ctx, "Teacher with ID {id} not found.").format(id=teacher_id)
             )
 
-        reviews = TeacherReview.get_all_by_teacher(teacher)
+        reviews = TeacherReview.get(ctx=ctx, teacher=teacher)
 
         if not reviews:
             return await ctx.reply(_(ctx, "There are no reviews for this teacher."))
@@ -715,7 +713,7 @@ class Review(commands.Cog):
     @review_teacher_.command(name="mine", aliases=["my-list", "mylist"])
     async def review_teacher_mine(self, ctx):
         """Get list of all your reviewed teachers"""
-        reviews = TeacherReview.get_all_by_author(ctx)
+        reviews = TeacherReview.get(ctx=ctx, author=ctx.author)
 
         if not reviews:
             return await ctx.reply(_(ctx, "You have no reviews."))
@@ -809,7 +807,7 @@ class Review(commands.Cog):
         Args:
             teacher_id: Teacher's school ID
         """
-        teacher = Teacher.get_by_sid(ctx, teacher_id)
+        teacher = Teacher.get(ctx=ctx, school_id=teacher_id)
 
         if not teacher:
             await ctx.reply(
@@ -817,7 +815,7 @@ class Review(commands.Cog):
             )
             return
 
-        review = TeacherReview.get_member_review(ctx.author, teacher)
+        review = TeacherReview.get(ctx=ctx, author=ctx.author, teacher=teacher)
 
         if review is None:
             return await ctx.send(
@@ -862,7 +860,7 @@ class Review(commands.Cog):
         Args:
             idx: ID of review
         """
-        review = TeacherReview.get_by_idx(ctx, idx)
+        review = TeacherReview.get(ctx=ctx, idx=idx)
 
         if not review:
             return await ctx.send(_(ctx, "No review with ID {id}.").format(id=idx))

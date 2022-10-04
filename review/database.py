@@ -269,50 +269,22 @@ class SubjectReview(database.base):
         return review
 
     @staticmethod
-    def get_member_review(
-        member: discord.Member, subject: Subject
-    ) -> Optional[SubjectReview]:
+    def get(
+        ctx: commands.Context = None,
+        subject: Subject = None,
+        author: discord.Member = None,
+        idx: int = None,
+    ) -> List[SubjectReview]:
         """Get members subject review"""
-        query = (
-            session.query(SubjectReview)
-            .filter_by(author_id=member.id)
-            .filter_by(subject_id=subject.idx)
-        )
+        query = session.query(SubjectReview).filter_by(guild_id=ctx.guild.id)
 
-        return query.one_or_none()
+        if subject:
+            query = query.filter_by(subject_id=subject.idx)
 
-    @staticmethod
-    def get_all_by_author(ctx: commands.Context) -> List[SubjectReview]:
-        """Get all user's reviews"""
-        query = session.query(SubjectReview).filter_by(author_id=ctx.author.id).all()
+        if author:
+            query = query.filter_by(author_id=author.id)
 
-        return query
-
-    @staticmethod
-    def get_all_by_subject(subject: Subject) -> List[SubjectReview]:
-        """Get all subject's reviews"""
-        query = (
-            session.query(SubjectReview)
-            .filter_by(subject_id=subject.idx)
-            .order_by(
-                SubjectReview.upvotes - SubjectReview.downvotes,
-                SubjectReview.updated.desc(),
-            )
-            .all()
-        )
-
-        return query
-
-    @staticmethod
-    def get_by_idx(ctx: commands.Context, idx: int) -> Optional[SubjectReview]:
-        """Get review by it's IDX"""
-        query = (
-            session.query(SubjectReview)
-            .filter_by(guild_id=ctx.guild.id)
-            .filter_by(idx=idx)
-        )
-
-        return query.one_or_none()
+        return query.all()
 
     def __repr__(self) -> str:
         return (
@@ -516,50 +488,25 @@ class TeacherReview(database.base):
         return review
 
     @staticmethod
-    def get_member_review(
-        member: discord.Member, teacher: Teacher
+    def get(
+        ctx: commands.Context = None,
+        author: discord.Member = None,
+        teacher: Teacher = None,
+        idx: int = None,
     ) -> Optional[TeacherReview]:
         """Get members teacher review"""
-        query = (
-            session.query(TeacherReview)
-            .filter_by(author_id=member.id)
-            .filter_by(teacher_id=teacher.idx)
-        )
+        query = session.query(TeacherReview).filter_by(guild_id=ctx.guild.id)
 
-        return query.one_or_none()
+        if author:
+            query = query.filter_by(author_id=author.idx)
 
-    @staticmethod
-    def get_all_by_author(ctx: commands.Context) -> List[TeacherReview]:
-        """Get all user's reviews"""
-        query = session.query(TeacherReview).filter_by(author_id=ctx.author.id).all()
+        if teacher:
+            query = query.filter_by(teacher_id=teacher.idx)
 
-        return query
+        if idx:
+            query = query.filter_by(idx=idx)
 
-    @staticmethod
-    def get_all_by_teacher(teacher: Teacher) -> List[TeacherReview]:
-        """Get all subject's reviews"""
-        query = (
-            session.query(TeacherReview)
-            .filter_by(teacher_id=teacher.idx)
-            .order_by(
-                TeacherReview.upvotes - TeacherReview.downvotes,
-                TeacherReview.updated.desc(),
-            )
-            .all()
-        )
-
-        return query
-
-    @staticmethod
-    def get_by_idx(ctx: commands.Context, idx: int) -> Optional[TeacherReview]:
-        """Get review by it's IDX"""
-        query = (
-            session.query(TeacherReview)
-            .filter_by(guild_id=ctx.guild.id)
-            .filter_by(idx=idx)
-        )
-
-        return query.one_or_none()
+        return query.all()
 
     def __repr__(self) -> str:
         return (
