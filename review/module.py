@@ -411,10 +411,7 @@ class Review(commands.Cog):
 
         review = SubjectReview.get_member_review(ctx.author, subject)
 
-        if review:
-            review.edit(grade, anonymous, text)
-        else:
-            review = SubjectReview.add(ctx, subject, grade, anonymous, text)
+        review = SubjectReview.add(ctx, subject, grade, anonymous, text)
 
         return review
 
@@ -445,10 +442,7 @@ class Review(commands.Cog):
 
         review = TeacherReview.get_member_review(ctx.author, teacher)
 
-        if review:
-            review.edit(grade, anonymous, text)
-        else:
-            review = TeacherReview.add(ctx, teacher, grade, anonymous, text)
+        review = TeacherReview.add(ctx, teacher, grade, anonymous, text)
 
         return review
 

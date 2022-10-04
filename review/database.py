@@ -218,20 +218,6 @@ class SubjectReview(database.base):
         session.merge(db_vote)
         session.commit()
 
-    def edit(self, grade: int, anonym: bool, text: str):
-        """Edit review information. Reset relevance for reviews
-        lastly edited before 1 month."""
-        if (date.today() - self.updated) > timedelta(days=30):
-            SubjectRelevance.reset(self.idx)
-
-        self.grade = grade
-        self.anonym = anonym
-        self.text_review = text
-        self.updated = date.today()
-        self.guarantor_id = self.subject.guarantor_id
-
-        session.commit()
-
     def delete(self):
         """Delete review"""
         session.delete(self)
@@ -252,19 +238,32 @@ class SubjectReview(database.base):
     ) -> SubjectReview:
         """Add review information"""
         now = date.today()
-        review = SubjectReview(
-            guild_id=ctx.guild.id,
-            author_id=ctx.author.id,
-            anonym=anonym,
-            subject_id=subject.idx,
-            guarantor_id=subject.guarantor_id,
-            grade=grade,
-            text_review=text,
-            updated=now,
-            created=now,
+
+        review = (
+            session.query(SubjectReview)
+            .filter_by(guild_id=ctx.guild.id)
+            .filter_by(author_id=ctx.author.id)
+            .filter_by(subject_id=subject.idx)
         )
 
-        session.add(review)
+        if review:
+            if (date.today() - review.updated) > timedelta(days=30):
+                SubjectRelevance.reset(review.idx)
+        else:
+            review = SubjectReview(
+                guild_id=ctx.guild.id,
+                author_id=ctx.author.id,
+                subject_id=subject.idx,
+                created=now,
+            )
+
+        review.anonym = anonym
+        review.guarantor_id = subject.guarantor_id
+        review.grade = grade
+        review.text_review = text
+        review.updated = now
+
+        session.merge(review)
         session.commit()
 
         return review
@@ -467,19 +466,6 @@ class TeacherReview(database.base):
         session.merge(db_vote)
         session.commit()
 
-    def edit(self, grade: int, anonym: bool, text: str):
-        """Edit review information. Reset relevance for reviews
-        lastly edited before 1 month."""
-        if (date.today() - self.updated) > timedelta(days=30):
-            TeacherRelevance.reset(self.idx)
-
-        self.grade = grade
-        self.anonym = anonym
-        self.text_review = text
-        self.updated = date.today()
-
-        session.commit()
-
     def delete(self):
         """Delete review"""
         session.delete(self)
@@ -500,18 +486,31 @@ class TeacherReview(database.base):
     ) -> TeacherReview:
         """Add review information"""
         now = date.today()
-        review = TeacherReview(
-            guild_id=ctx.guild.id,
-            author_id=ctx.author.id,
-            anonym=anonym,
-            teacher_id=teacher.idx,
-            grade=grade,
-            text_review=text,
-            updated=now,
-            created=now,
+
+        review = (
+            session.query(TeacherReview)
+            .filter_by(guild_id=ctx.guild.id)
+            .filter_by(author_id=ctx.author.id)
+            .filter_by(teacher_id=teacher.idx)
         )
 
-        session.add(review)
+        if review:
+            if (date.today() - review.updated) > timedelta(days=30):
+                TeacherRelevance.reset(review.idx)
+        else:
+            review = SubjectReview(
+                guild_id=ctx.guild.id,
+                author_id=ctx.author.id,
+                teacher_id=teacher.idx,
+                created=now,
+            )
+
+        review.anonym = anonym
+        review.grade = grade
+        review.text_review = text
+        review.updated = now
+
+        session.merge(review)
         session.commit()
 
         return review
