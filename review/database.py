@@ -28,16 +28,8 @@ from typing import List, Optional, Union
 
 from ..school.database import Subject, Teacher
 
-# GRADE CONSTRAINT
-event.listen(SubjectReview.grade, "set", grade_constraint_check)
-event.listen(TeacherReview.grade, "set", grade_constraint_check)
-
-def before_set_grade(target, value, oldvalue, initiator):
-    if value < 0 or value > 5:
-        raise ValueError('Grade must be between 1 and 5')
-        
-        
 # TEACHER USAGE CHECK
+
 
 def teacher_teacherreview_filter_generator():
     filter = exists().where(Teacher.idx == TeacherReview.teacher_id)
@@ -67,16 +59,19 @@ def teacher_is_used(teacher: Teacher) -> bool:
 
     return query_subject_review or query_teacher_review
 
+
 Teacher.add_used_filter_generator(teacher_teacherreview_filter_generator)
 Teacher.add_used_filter_generator(teacher_subjectreview_filter_generator)
 Teacher.add_is_used_check(teacher_is_used)
 
 # SUBJECT USAGE CHECK
 
+
 def subject_subjectreview_filter_generator():
     filter = exists().where(Subject.idx == SubjectReview.subject_id)
     return filter
-    
+
+
 def subject_is_used(subject: Subject) -> bool:
     query_subject_review = (
         session.query(SubjectReview)
@@ -85,11 +80,13 @@ def subject_is_used(subject: Subject) -> bool:
         .one_or_none()
         is not None
     )
-    
+
     return query_subject_review
-    
+
+
 Subject.add_used_filter_generator(subject_subjectreview_filter_generator)
 Subject.add_is_used_check(subject_is_used)
+
 
 class SubjectRelevance(database.base):
     """Holds user votes for subject reviews.
@@ -128,6 +125,7 @@ class SubjectRelevance(database.base):
             "vote": self.vote,
             "review": self.review,
         }
+
 
 class SubjectReview(database.base):
     """Holds information about subject reviews and all the logic.
@@ -189,7 +187,6 @@ class SubjectReview(database.base):
         .where(SubjectRelevance.vote.is_(False))
         .scalar_subquery()
     )
-    
 
     def vote(self, user: Union[discord.User, discord.Member], vote: Optional[bool]):
         """Add or edit user's vote
@@ -588,3 +585,15 @@ class TeacherReview(database.base):
             "downvotes": self.downvotes,
             "relevance": self.relevance,
         }
+
+
+# GRADE CONSTRAINT
+
+
+def grade_constraint_check(target, value, oldvalue, initiator):
+    if value < 0 or value > 5:
+        raise ValueError("Grade must be between 1 and 5")
+
+
+event.listen(SubjectReview.grade, "set", grade_constraint_check)
+event.listen(TeacherReview.grade, "set", grade_constraint_check)
