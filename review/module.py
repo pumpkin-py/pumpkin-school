@@ -400,7 +400,7 @@ class Review(commands.Cog):
                 )
             )
             return
-            
+
         subject = subject[0]
 
         if grade < 1 or grade > 5:
@@ -431,7 +431,7 @@ class Review(commands.Cog):
                 _(ctx, "Teacher with ID {id} not found.").format(id=teacher_id)
             )
             return
-            
+
         teacher = teacher[0]
 
         if grade < 1 or grade > 5:
@@ -477,7 +477,7 @@ class Review(commands.Cog):
             return await ctx.reply(
                 _(ctx, "Subject with abbreviation {abbreviation} not found.")
             )
-            
+
         subject = subject[0]
 
         reviews = SubjectReview.get(ctx=ctx, subject=subject)
@@ -601,7 +601,7 @@ class Review(commands.Cog):
                 )
             )
             return
-            
+
         subject = subject[0]
 
         review = SubjectReview.get(ctx=ctx.guild.id, author=ctx.author, subject=subject)
@@ -612,7 +612,7 @@ class Review(commands.Cog):
                     abbreviation=abbreviation
                 )
             )
-            
+
         review = review[0]
 
         embed = self._get_subject_review_embed(
@@ -654,7 +654,7 @@ class Review(commands.Cog):
 
         if not review:
             return await ctx.send(_(ctx, "No review with ID {id}.").format(id=idx))
-            
+
         review = review[0]
 
         embed = self._get_subject_review_embed(
@@ -825,7 +825,7 @@ class Review(commands.Cog):
                 _(ctx, "Teacher with ID {id} not found.").format(id=teacher_id)
             )
             return
-            
+
         teacher = teacher[0]
 
         review = TeacherReview.get(ctx=ctx, author=ctx.author, teacher=teacher)
@@ -836,7 +836,7 @@ class Review(commands.Cog):
                     name=teacher.name
                 )
             )
-            
+
         review = review[0]
 
         embed = self._get_teacher_review_embed(
@@ -879,7 +879,7 @@ class Review(commands.Cog):
 
         if not review:
             return await ctx.send(_(ctx, "No review with ID {id}.").format(id=idx))
-            
+
         review = review[0]
 
         embed = self._get_teacher_review_embed(
