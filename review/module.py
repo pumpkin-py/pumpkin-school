@@ -400,6 +400,8 @@ class Review(commands.Cog):
                 )
             )
             return
+            
+        subject = subject[0]
 
         if grade < 1 or grade > 5:
             await ctx.send(_(ctx, "Grade must be between 1 and 5 inclusive."))
@@ -429,6 +431,8 @@ class Review(commands.Cog):
                 _(ctx, "Teacher with ID {id} not found.").format(id=teacher_id)
             )
             return
+            
+        teacher = teacher[0]
 
         if grade < 1 or grade > 5:
             await ctx.send(_(ctx, "Grade must be between 1 and 5 inclusive."))
@@ -437,8 +441,6 @@ class Review(commands.Cog):
         if text is None or not len(text):
             await ctx.send(_(ctx, "Review must contain text."))
             return
-
-        review = TeacherReview.get(ctx=ctx, author=ctx.author, teacher=teacher)
 
         review = TeacherReview.add(ctx, teacher, grade, anonymous, text)
 
@@ -471,10 +473,12 @@ class Review(commands.Cog):
             abbreviation: Subject's abbreviation
         """
         subject = Subject.get(ctx=ctx, abbreviation=abbreviation)
-        if subject is None:
+        if not subject:
             return await ctx.reply(
                 _(ctx, "Subject with abbreviation {abbreviation} not found.")
             )
+            
+        subject = subject[0]
 
         reviews = SubjectReview.get(ctx=ctx, subject=subject)
 
@@ -597,15 +601,19 @@ class Review(commands.Cog):
                 )
             )
             return
+            
+        subject = subject[0]
 
         review = SubjectReview.get(ctx=ctx.guild.id, author=ctx.author, subject=subject)
 
-        if review is None:
+        if not review:
             return await ctx.send(
                 _(ctx, "You have no review of subject {abbreviation}.").format(
                     abbreviation=abbreviation
                 )
             )
+            
+        review = review[0]
 
         embed = self._get_subject_review_embed(
             ctx=ctx,
@@ -646,6 +654,8 @@ class Review(commands.Cog):
 
         if not review:
             return await ctx.send(_(ctx, "No review with ID {id}.").format(id=idx))
+            
+        review = review[0]
 
         embed = self._get_subject_review_embed(
             ctx=ctx,
@@ -690,10 +700,11 @@ class Review(commands.Cog):
             teacher_id: Teacher's school ID
         """
         teacher = Teacher.get(ctx=ctx, school_id=teacher_id)
-        if teacher is None:
+        if not teacher:
             return await ctx.reply(
                 _(ctx, "Teacher with ID {id} not found.").format(id=teacher_id)
             )
+        teacher = teacher[0]
 
         reviews = TeacherReview.get(ctx=ctx, teacher=teacher)
 
@@ -814,15 +825,19 @@ class Review(commands.Cog):
                 _(ctx, "Teacher with ID {id} not found.").format(id=teacher_id)
             )
             return
+            
+        teacher = teacher[0]
 
         review = TeacherReview.get(ctx=ctx, author=ctx.author, teacher=teacher)
 
-        if review is None:
+        if not review:
             return await ctx.send(
                 _(ctx, "You have no review of teacher {name}.").format(
                     name=teacher.name
                 )
             )
+            
+        review = review[0]
 
         embed = self._get_teacher_review_embed(
             ctx=ctx,
@@ -864,6 +879,8 @@ class Review(commands.Cog):
 
         if not review:
             return await ctx.send(_(ctx, "No review with ID {id}.").format(id=idx))
+            
+        review = review[0]
 
         embed = self._get_teacher_review_embed(
             ctx=ctx,
