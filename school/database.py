@@ -445,6 +445,8 @@ class Teacher(database.base):
         if school_id:
             query = query.filter_by(school_id=school_id)
 
+        name = name.replace("%", "")
+
         if name:
             query = query.filter(Teacher.name.ilike(f"%{name}%"))
 
@@ -795,6 +797,8 @@ class Subject(database.base):
 
         if abbreviation:
             query = query.filter_by(abbreviation=abbreviation.upper())
+
+        name = name.replace("%", "")
 
         if name:
             query = query.filter(Subject.name.ilike(f"%{name}%"))
