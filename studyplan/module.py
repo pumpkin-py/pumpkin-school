@@ -210,9 +210,17 @@ class StudyPlan(commands.Cog):
         for subject in dic_subjects:
             if degree == Degree.BACHELOR.value and not subject["bachelors_degree"]:
                 continue
-            elif degree == Degree.MASTER.value and not subject["masters_degree"]:
+            elif (
+                degree == Degree.MASTER.value
+                and not subject["masters_degree"]
+                or subject["abbreviation"].startswith("X")
+            ):
                 continue
-            elif degree == Degree.DOCTOR.value and not subject["doctoral_degree"]:
+            elif (
+                degree == Degree.DOCTOR.value
+                and not subject["doctoral_degree"]
+                or subject["abbreviation"].startswith("X")
+            ):
                 continue
 
             mandatory_programmes = []
@@ -286,9 +294,17 @@ class StudyPlan(commands.Cog):
         for subject in dic_subjects:
             if degree == Degree.BACHELOR.value and not subject["bachelors_degree"]:
                 continue
-            elif degree == Degree.MASTER.value and not subject["masters_degree"]:
+            elif (
+                degree == Degree.MASTER.value
+                and not subject["masters_degree"]
+                or subject["abbreviation"].startswith("X")
+            ):
                 continue
-            elif degree == Degree.DOCTOR.value and not subject["doctoral_degree"]:
+            elif (
+                degree == Degree.DOCTOR.value
+                and not subject["doctoral_degree"]
+                or subject["abbreviation"].startswith("X")
+            ):
                 continue
 
             mandatory_programmes = []
