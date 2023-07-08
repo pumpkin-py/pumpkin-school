@@ -245,7 +245,7 @@ class StudyPlan(commands.Cog):
                 missing_categories.add(subject["institute"])
             if channel is None:
                 missing_channels.add(subject["abbreviation"])
-            elif channel.category.name != subject["institute"]:
+            elif channel.category.name.rstrip("-2") != subject["institute"]:
                 channels_in_wrong_categories.append(
                     f"{subject['abbreviation']} ({channel.category.name} -> {subject['institute']})"
                 )
