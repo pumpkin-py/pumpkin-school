@@ -5,7 +5,7 @@ import discord
 import pathlib
 import pandas as pd
 from discord.ext import commands
-from pie import check, i18n, utils
+from pie import check, i18n
 
 
 _ = i18n.Translator("modules/school").translate
@@ -95,7 +95,7 @@ class StudyPlan(commands.Cog):
             self._load_programmes(save_path)
             await ctx.reply(f"Loaded {len(self.programmes)} programmes")
         except ValueError:
-            await ctx.reply("Input file does not match expected columns")
+            await ctx.reply(_(ctx, "Input file does not match expected columns"))
 
     @check.acl2(check.ACLevel.MOD)
     @commands.command()
@@ -109,7 +109,7 @@ class StudyPlan(commands.Cog):
             self._load_subjects(save_path)
             await ctx.reply(f"Loaded {len(self.subjects)} subjects")
         except ValueError:
-            await ctx.reply("Input file does not match expected columns")
+            await ctx.reply(_(ctx, "Input file does not match expected columns"))
 
     @check.acl2(check.ACLevel.MOD)
     @commands.command()
@@ -122,7 +122,7 @@ class StudyPlan(commands.Cog):
             return
         elif primary is None:
             await ctx.reply(
-                f"Is this server where all year variants of programmes should be?: `True, False`"
+                "Is this server where all year variants of programmes should be?: `True, False`"
             )
             return
 
@@ -147,7 +147,7 @@ class StudyPlan(commands.Cog):
         if len(missing_roles) > 0:
             await ctx.reply(f"Missing roles:\n```{' '.join(missing_roles)}```")
         else:
-            await ctx.reply(f"All roles exist already")
+            await ctx.reply(_(ctx, "All roles exist already."))
 
     @check.acl2(check.ACLevel.MOD)
     @commands.command()
@@ -160,7 +160,7 @@ class StudyPlan(commands.Cog):
             return
         elif primary is None:
             await ctx.reply(
-                f"Is this server where all year variants of programmes should be?: `True, False`"
+                "Is this server where all year variants of programmes should be?: `True, False`"
             )
             return
 
@@ -187,7 +187,7 @@ class StudyPlan(commands.Cog):
         if len(missing_roles) > 0:
             await ctx.reply(f"Created missing roles:\n```{' '.join(missing_roles)}```")
         else:
-            await ctx.reply(f"All roles exist already")
+            await ctx.reply(_(ctx, "All roles exist already"))
 
     @check.acl2(check.ACLevel.MOD)
     @commands.command()
@@ -259,7 +259,7 @@ class StudyPlan(commands.Cog):
             if category.name not in institutes:
                 continue
             for channel in category.channels:
-                if not (self.subjects["abbreviation"] == channel.name.upper()).any():
+                if not (self.subjects["abbreviation"] == channel.name.upper()):
                     outdated_channels.append(f"{channel.name} ({category.name})")
 
         await ctx.reply(
@@ -437,7 +437,7 @@ class StudyPlan(commands.Cog):
             if new_pos != channel.position:
                 await channel.edit(position=new_pos)
 
-        await ctx.reply("Done")
+        await ctx.reply(_(ctx, "Done."))
 
 
 async def setup(bot) -> None:

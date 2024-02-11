@@ -1,12 +1,13 @@
 import discord
 from discord.ext import commands
-from pie import check, i18n, utils
+from pie import check, i18n
 
 _ = i18n.Translator("modules/semester_reset").translate
 
 
 class SemesterReset(commands.Cog):
     @check.acl2(check.ACLevel.MOD)
+    @commands.guild_only()
     @commands.command(name="role-reset")
     async def role_reset(
         self, ctx, highest_role: discord.Role, lowest_role: discord.Role
@@ -65,6 +66,7 @@ class SemesterReset(commands.Cog):
         )
 
     @check.acl2(check.ACLevel.MOD)
+    @commands.guild_only()
     @commands.command(name="channels_reset")
     async def channels_reset(self, ctx, *, categories=None):
         """Remove user overrides from specified channels. Use space-separated list of category names as an argument."""
