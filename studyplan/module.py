@@ -85,6 +85,7 @@ class StudyPlan(commands.Cog):
             raise ValueError
 
     @check.acl2(check.ACLevel.MOD)
+    @commands.guild_only()
     @commands.command()
     async def load_programmes(self, ctx, attachment: discord.Attachment):
         """Load programmes from a JSON file."""
@@ -98,6 +99,7 @@ class StudyPlan(commands.Cog):
             await ctx.reply(_(ctx, "Input file does not match expected columns"))
 
     @check.acl2(check.ACLevel.MOD)
+    @commands.guild_only()
     @commands.command()
     async def load_subjects(self, ctx, attachment: discord.Attachment):
         """Load subjects from a JSON file."""
@@ -112,6 +114,7 @@ class StudyPlan(commands.Cog):
             await ctx.reply(_(ctx, "Input file does not match expected columns"))
 
     @check.acl2(check.ACLevel.MOD)
+    @commands.guild_only()
     @commands.command()
     async def check_programmes(self, ctx, degree: str = None, primary: bool = None):
         """Check if all programmes from the scraped data have corresponding roles."""
@@ -150,6 +153,7 @@ class StudyPlan(commands.Cog):
             await ctx.reply(_(ctx, "All roles exist already."))
 
     @check.acl2(check.ACLevel.MOD)
+    @commands.guild_only()
     @commands.command()
     async def create_programmes(self, ctx, degree: str = None, primary: bool = None):
         """Create all missing roles for the programmes in the scraped data."""
@@ -190,6 +194,7 @@ class StudyPlan(commands.Cog):
             await ctx.reply(_(ctx, "All roles exist already"))
 
     @check.acl2(check.ACLevel.MOD)
+    @commands.guild_only()
     @commands.command()
     async def check_subjects(self, ctx, degree: str = None):
         """Check if subjects from the scraped data have corresponding rooms."""
@@ -275,6 +280,7 @@ class StudyPlan(commands.Cog):
         )
 
     @check.acl2(check.ACLevel.MOD)
+    @commands.guild_only()
     @commands.command()
     async def create_and_modify_subjects(self, ctx, degree: str = None):
         """Create all missing rooms for the programmes in the scraped data. Makes sure the title is correct.
@@ -412,6 +418,7 @@ class StudyPlan(commands.Cog):
         )
 
     @check.acl2(check.ACLevel.MOD)
+    @commands.guild_only()
     @commands.command()
     async def reorder_channels(self, ctx, category: str):
         """Makes sure the channels in said category are in alphabetical order."""

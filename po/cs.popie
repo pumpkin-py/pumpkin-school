@@ -1,3 +1,72 @@
+msgid Subject {subject} not found.
+msgstr Předmět {subject} nenalezen.
+
+msgid Subject has no reviews yet.
+msgstr Předmět žádné hodnocení nemá.
+
+msgid Name
+msgstr Název
+
+msgid Average rating
+msgstr Průměrná známka
+
+msgid Review author
+msgstr Autor příspěvku
+
+msgid Rating
+msgstr Známka
+
+msgid Text review
+msgstr Text
+
+msgid No known subjects.
+msgstr Žádné předměty nebyly přidány.
+
+msgid Available subjects
+msgstr Dostupné předměty
+
+msgid You have not rated any subject yet.
+msgstr Zatím jsi žádné předměty nehodnotil/a.
+
+msgid My rated subjects
+msgstr Mnou hodnocené předměty
+
+msgid Mark must be in the range <1, 5>.
+msgstr Známka musí být z rozsahu <1, 5>.
+
+msgid Unknown subject.
+msgstr Neznámý předmět.
+
+msgid Please provide text for the review.
+msgstr Prosím, doplň k hodnocení i text.
+
+msgid Review successfully updated.
+msgstr Hodnocení úspěšně přidáno.
+
+msgid Anonymous review successfully updated.
+msgstr Anonymní hodnocení úspěšně přidáno.
+
+msgid Review deleted successfully.
+msgstr Hodnocení úspěšně odebráno.
+
+msgid Review for this subject not found.
+msgstr Žádné hodnocení tohoto předmětu nebylo nalezeno.
+
+msgid Category
+msgstr Ústav
+
+msgid Number of reviews
+msgstr Počet hodnocení
+
+msgid Subject updated.
+msgstr Předmět úspěšně přidán.
+
+msgid Subject removed.
+msgstr Předmět úspěšně odebrán.
+
+msgid Subject not found.
+msgstr Předmět nenalezen.
+
 msgid Cannot find specified roles, aborting.
 msgstr Role nenalezeny, ukončuji.
 

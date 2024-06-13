@@ -1,3 +1,72 @@
+msgid Subject {subject} not found.
+msgstr
+
+msgid Subject has no reviews yet.
+msgstr
+
+msgid Name
+msgstr
+
+msgid Average rating
+msgstr
+
+msgid Review author
+msgstr
+
+msgid Rating
+msgstr
+
+msgid Text review
+msgstr
+
+msgid No known subjects.
+msgstr
+
+msgid Available subjects
+msgstr
+
+msgid You have not rated any subject yet.
+msgstr
+
+msgid My rated subjects
+msgstr
+
+msgid Mark must be in the range <1, 5>.
+msgstr
+
+msgid Unknown subject.
+msgstr
+
+msgid Please provide text for the review.
+msgstr
+
+msgid Review successfully updated.
+msgstr
+
+msgid Anonymous review successfully updated.
+msgstr
+
+msgid Review deleted successfully.
+msgstr
+
+msgid Review for this subject not found.
+msgstr
+
+msgid Category
+msgstr
+
+msgid Number of reviews
+msgstr
+
+msgid Subject updated.
+msgstr
+
+msgid Subject removed.
+msgstr
+
+msgid Subject not found.
+msgstr
+
 msgid Cannot find specified roles, aborting.
 msgstr
 
