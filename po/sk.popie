@@ -19,7 +19,7 @@ msgstr
 msgid Text review
 msgstr
 
-msgid No known subjects.
+msgid There are no rated subjects yet.
 msgstr
 
 msgid Available subjects
@@ -40,10 +40,10 @@ msgstr
 msgid Please provide text for the review.
 msgstr
 
-msgid Review successfully updated.
+msgid Review successfully added.
 msgstr
 
-msgid Anonymous review successfully updated.
+msgid Anonymous review successfully added.
 msgstr
 
 msgid Review deleted successfully.
@@ -52,13 +52,13 @@ msgstr
 msgid Review for this subject not found.
 msgstr
 
-msgid Category
+msgid Department
 msgstr
 
 msgid Number of reviews
 msgstr
 
-msgid Subject updated.
+msgid Subject added.
 msgstr
 
 msgid Subject removed.

@@ -143,7 +143,7 @@ class Reviews(commands.Cog):
         all_reviews = Review.get_all(ctx.guild)
         all_subjects = list(set(r.subject.lower() for r in all_reviews))
         if len(all_subjects) == 0:
-            await ctx.reply(_(ctx, "No known subjects."))
+            await ctx.reply(_(ctx, "There are no rated subjects yet."))
             return
         embed = discord.Embed(title=_(ctx, "Available subjects"))
         embed.add_field(name="", value=", ".join(all_subjects))
@@ -205,7 +205,7 @@ class Reviews(commands.Cog):
             await guild_log.info(
                 ctx.author, ctx.channel, f"Added/updated review for subject {subject}."
             )
-            await ctx.reply(_(ctx, "Review successfully updated."))
+            await ctx.reply(_(ctx, "Review successfully added."))
 
     @check.acl2(check.ACLevel.MEMBER)
     @commands.guild_only()
@@ -226,7 +226,7 @@ class Reviews(commands.Cog):
                 ctx.channel,
                 f"Added anonymous review for subject {subject}.",
             )
-            await ctx.send(_(ctx, "Anonymous review successfully updated."))
+            await ctx.send(_(ctx, "Anonymous review successfully added."))
         await ctx.message.delete()
 
     @check.acl2(check.ACLevel.MEMBER)
@@ -265,7 +265,7 @@ class Reviews(commands.Cog):
             return await ctx.reply(_(ctx, "Unknown subject."))
 
         embed = discord.Embed(title=subject.shortcut)
-        embed.add_field(name=_(ctx, "Category"), value=subject.category)
+        embed.add_field(name=_(ctx, "Department"), value=subject.category)
         embed.add_field(
             name=_(ctx, "Number of reviews"), value=len(list(subject.reviews))
         )
@@ -286,7 +286,7 @@ class Reviews(commands.Cog):
         await guild_log.info(
             ctx.author, ctx.channel, f"Added/updated subject: {abbreviation}."
         )
-        await ctx.reply(_(ctx, "Subject updated."))
+        await ctx.reply(_(ctx, "Subject added."))
 
     @check.acl2(check.ACLevel.MOD)
     @commands.guild_only()

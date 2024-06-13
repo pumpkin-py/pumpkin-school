@@ -2,7 +2,7 @@ msgid Subject {subject} not found.
 msgstr Předmět {subject} nenalezen.
 
 msgid Subject has no reviews yet.
-msgstr Předmět žádné hodnocení nemá.
+msgstr Předmět nemá žádné hodnocení.
 
 msgid Name
 msgstr Název
@@ -19,8 +19,8 @@ msgstr Známka
 msgid Text review
 msgstr Text
 
-msgid No known subjects.
-msgstr Žádné předměty nebyly přidány.
+msgid There are no rated subjects yet.
+msgstr Zatím nebyly hodnoceny žádné předměty.
 
 msgid Available subjects
 msgstr Dostupné předměty
@@ -40,10 +40,10 @@ msgstr Neznámý předmět.
 msgid Please provide text for the review.
 msgstr Prosím, doplň k hodnocení i text.
 
-msgid Review successfully updated.
+msgid Review successfully added.
 msgstr Hodnocení úspěšně přidáno.
 
-msgid Anonymous review successfully updated.
+msgid Anonymous review successfully added.
 msgstr Anonymní hodnocení úspěšně přidáno.
 
 msgid Review deleted successfully.
@@ -52,13 +52,13 @@ msgstr Hodnocení úspěšně odebráno.
 msgid Review for this subject not found.
 msgstr Žádné hodnocení tohoto předmětu nebylo nalezeno.
 
-msgid Category
+msgid Department
 msgstr Ústav
 
 msgid Number of reviews
 msgstr Počet hodnocení
 
-msgid Subject updated.
+msgid Subject added.
 msgstr Předmět úspěšně přidán.
 
 msgid Subject removed.
