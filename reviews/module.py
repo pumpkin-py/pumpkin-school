@@ -1,5 +1,5 @@
 import discord
-from discord.ext import tasks, commands
+from discord.ext import commands
 
 from pie.utils.objects import ScrollableVotingEmbed, VotableEmbed
 from pie import check, i18n, logger, utils
