@@ -202,8 +202,8 @@ class Reviews(commands.Cog):
         """
         result = await self._add_review(ctx, subject, mark, text, False)
         if result is not None:
-            guild_log.info(
-                ctx.author, ctx.channel, f"Added review for subject {subject}."
+            await guild_log.info(
+                ctx.author, ctx.channel, f"Added/updated review for subject {subject}."
             )
             await ctx.reply(_(ctx, "Review successfully updated."))
 
@@ -221,7 +221,7 @@ class Reviews(commands.Cog):
         """
         result = await self._add_review(ctx, subject, mark, text, True)
         if result is not None:
-            guild_log.info(
+            await guild_log.info(
                 ctx.author,
                 ctx.channel,
                 f"Added anonymous review for subject {subject}.",
@@ -238,7 +238,7 @@ class Reviews(commands.Cog):
         subject: Subject abbreviation
         """
         if Review.remove(ctx.guild, ctx.author, subject):
-            guild_log.info(
+            await guild_log.info(
                 ctx.author, ctx.channel, f"Removed their review for subject {subject}."
             )
             await ctx.reply(_(ctx, "Review deleted successfully."))
@@ -283,7 +283,7 @@ class Reviews(commands.Cog):
         category: str,
     ):
         Subject.add(abbreviation, name, category)
-        guild_log.info(
+        await guild_log.info(
             ctx.author, ctx.channel, f"Added/updated subject: {abbreviation}."
         )
         await ctx.reply(_(ctx, "Subject updated."))
@@ -295,7 +295,9 @@ class Reviews(commands.Cog):
         self, ctx: discord.ext.commands.Context, abbreviation: str
     ):
         if Subject.remove(abbreviation):
-            guild_log.info(ctx.author, ctx.channel, f"Removed subject: {abbreviation}.")
+            await guild_log.info(
+                ctx.author, ctx.channel, f"Removed subject: {abbreviation}."
+            )
             return await ctx.reply(_(ctx, "Subject removed."))
         await ctx.reply(_(ctx, "Subject not found."))
 
