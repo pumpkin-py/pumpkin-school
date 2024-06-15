@@ -16,6 +16,12 @@ msgstr Autor příspěvku
 msgid Rating
 msgstr Známka
 
+msgid Date
+msgstr Datum
+
+msgid %b %d %Y
+msgstr %d. %m. %Y
+
 msgid Text review
 msgstr Text
 

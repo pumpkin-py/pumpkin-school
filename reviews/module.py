@@ -6,7 +6,7 @@ from pie import check, i18n, logger, utils
 
 from .database import Review, Subject
 
-_ = i18n.Translator("modules/reviews").translate
+_ = i18n.Translator("modules/school").translate
 guild_log = logger.Guild.logger()
 
 
@@ -49,6 +49,7 @@ class ReviewEmbed(VotableEmbed):
 
     async def vote_up(self, interaction: discord.Interaction):
         review = Review.get(self.review_id)
+        print(review)
         if not review:
             # This review has been removed in the meantime
             return
@@ -88,7 +89,7 @@ class Reviews(commands.Cog):
     @review.command(name="subject", aliases=["see"])
     async def review_subject(self, ctx: discord.ext.commands.Context, subject: str):
         """See subject's reviews. Search subject by abbreviations."""
-        db_subject = Subject.get(subject)
+        db_subject = Subject.get(ctx.guild, subject)
         if db_subject is None:
             return await ctx.reply(
                 _(ctx, "Subject {subject} not found.").format(subject=subject)
@@ -122,8 +123,12 @@ class Reviews(commands.Cog):
                     "display_name",
                     _(ctx, "Unknown user"),
                 ),
+                inline=False,
             )
             embed.add_field(name=_(ctx, "Rating"), value=db_review.tier)
+            embed.add_field(
+                name=_(ctx, "Date"), value=db_review.date.strftime(_(ctx, "%b %d %Y"))
+            )
 
             review_chunks: list[str] = _split_review(db_review.text_review)
             if len(review_chunks):
@@ -140,13 +145,14 @@ class Reviews(commands.Cog):
     @review.command(name="list", aliases=["available"])
     async def review_list(self, ctx: discord.ext.commands.Context):
         """Get list of reviewed subjects"""
-        all_reviews = Review.get_all(ctx.guild)
-        all_subjects = list(set(r.subject.lower() for r in all_reviews))
-        if len(all_subjects) == 0:
+        subjects = Subject.get_reviewed(ctx.guild)
+        if len(subjects) == 0:
             await ctx.reply(_(ctx, "There are no rated subjects yet."))
             return
         embed = discord.Embed(title=_(ctx, "Available subjects"))
-        embed.add_field(name="", value=", ".join(all_subjects))
+        embed.add_field(
+            name="", value=", ".join(subject.shortcut for subject in subjects)
+        )
         await ctx.reply(embed=embed)
 
     @check.acl2(check.ACLevel.MEMBER)
@@ -154,12 +160,13 @@ class Reviews(commands.Cog):
     @review.command(name="my-list")
     async def review_my_list(self, ctx: discord.ext.commands.Context):
         """Get list of your reviewed subjects."""
-        reviews = Review.get_for_user(ctx.author)
-        rated_subjects = list(set(r.subject.lower() for r in reviews))
-        if len(rated_subjects) == 0:
+        subjects = Subject.get_reviewed_by_user(ctx.guild, ctx.author)
+        if len(subjects) == 0:
             return await ctx.reply(_(ctx, "You have not rated any subject yet."))
         embed = discord.Embed(title=_(ctx, "My rated subjects"))
-        embed.add_field(name="", value=", ".join(rated_subjects))
+        embed.add_field(
+            name="", value=", ".join(subject.shortcut for subject in subjects)
+        )
         await ctx.reply(embed=embed)
 
     @staticmethod
@@ -176,7 +183,7 @@ class Reviews(commands.Cog):
             return None
 
         # check if subject is in database
-        db_subject = Subject.get(subject)
+        db_subject = Subject.get(ctx.guild, subject)
         if db_subject is None:
             await ctx.reply(_(ctx, "Unknown subject."))
             return None
@@ -260,11 +267,12 @@ class Reviews(commands.Cog):
 
         subject: Subject code
         """
-        subject = Subject.get(subject)
+        subject = Subject.get(ctx.guild, subject)
         if subject is None:
             return await ctx.reply(_(ctx, "Unknown subject."))
 
         embed = discord.Embed(title=subject.shortcut)
+        embed.add_field(name=_(ctx, "Name"), value=subject.name)
         embed.add_field(name=_(ctx, "Department"), value=subject.category)
         embed.add_field(
             name=_(ctx, "Number of reviews"), value=len(list(subject.reviews))
@@ -282,7 +290,7 @@ class Reviews(commands.Cog):
         name: str,
         category: str,
     ):
-        Subject.add(abbreviation, name, category)
+        Subject.add(ctx.guild, abbreviation, name, category)
         await guild_log.info(
             ctx.author, ctx.channel, f"Added/updated subject: {abbreviation}."
         )
@@ -294,7 +302,7 @@ class Reviews(commands.Cog):
     async def subject_remove(
         self, ctx: discord.ext.commands.Context, abbreviation: str
     ):
-        if Subject.remove(abbreviation):
+        if Subject.remove(ctx.guild, abbreviation):
             await guild_log.info(
                 ctx.author, ctx.channel, f"Removed subject: {abbreviation}."
             )
