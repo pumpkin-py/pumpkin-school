@@ -6,6 +6,9 @@ _ = i18n.Translator("modules/semester_reset").translate
 
 
 class SemesterReset(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot
+
     @check.acl2(check.ACLevel.MOD)
     @commands.guild_only()
     @commands.command(name="role-reset")
