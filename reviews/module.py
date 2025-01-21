@@ -1,3 +1,5 @@
+from typing import List
+
 import discord
 from discord.ext import commands
 
@@ -10,7 +12,7 @@ _ = i18n.Translator("modules/school").translate
 guild_log = logger.Guild.logger()
 
 
-def _split_review(review: str) -> list[str]:
+def _split_review(review: str) -> List[str]:
     """Splits the review into chunks that can fit into an embed."""
     MAX_LEN = 1024
     ans = []
@@ -95,7 +97,9 @@ class Reviews(commands.Cog):
                 _(ctx, "Subject {subject} not found.").format(subject=subject)
             )
 
-        db_reviews: list[Review] = list(db_subject.reviews)
+        db_reviews: List[Review] = sorted(
+            list(db_subject.reviews), key=lambda x: x.date, reverse=True
+        )
 
         subject_abbr = db_subject.shortcut
         if db_subject.category:
@@ -108,7 +112,7 @@ class Reviews(commands.Cog):
             db_reviews
         )
 
-        embeds: list[ReviewEmbed] = []
+        embeds: List[ReviewEmbed] = []
         for db_review in db_reviews:
             embed = ReviewEmbed(db_review.id, ctx)
             embed.title = subject_abbr
@@ -130,7 +134,7 @@ class Reviews(commands.Cog):
                 name=_(ctx, "Date"), value=db_review.date.strftime(_(ctx, "%b %d %Y"))
             )
 
-            review_chunks: list[str] = _split_review(db_review.text_review)
+            review_chunks: List[str] = _split_review(db_review.text_review)
             if len(review_chunks):
                 embed.add_field(
                     name=_(ctx, "Text review"), value=review_chunks[0], inline=False
@@ -199,7 +203,12 @@ class Reviews(commands.Cog):
     @commands.guild_only()
     @review.command(name="add", aliases=["update"])
     async def review_add(
-        self, ctx: discord.ext.commands.Context, subject: str, mark: int, *, text: str
+        self,
+        ctx: discord.ext.commands.Context,
+        subject: str = None,
+        mark: int = None,
+        *,
+        text: str = "",
     ):
         """Add a review
 
@@ -207,6 +216,9 @@ class Reviews(commands.Cog):
         mark: 1-5 (one being best)
         text: Your review
         """
+        if not subject or not mark:
+            await utils.discord.send_help(ctx)
+            return
         result = await self._add_review(ctx, subject, mark, text, False)
         if result is not None:
             await guild_log.info(
@@ -218,7 +230,12 @@ class Reviews(commands.Cog):
     @commands.guild_only()
     @review.command(name="add-anonymous", aliases=["anonymous", "anon"])
     async def review_add_anonymous(
-        self, ctx: discord.ext.commands.Context, subject: str, mark: int, *, text: str
+        self,
+        ctx: discord.ext.commands.Context,
+        subject: str = None,
+        mark: int = None,
+        *,
+        text: str = "",
     ):
         """Adds an anonymous review and deletes your message.
 
@@ -226,6 +243,9 @@ class Reviews(commands.Cog):
         mark: 1-5 (one being best)
         text: Your review
         """
+        if not subject or not mark:
+            await utils.discord.send_help(ctx)
+            return
         result = await self._add_review(ctx, subject, mark, text, True)
         if result is not None:
             await guild_log.info(
@@ -252,6 +272,28 @@ class Reviews(commands.Cog):
             return
         await ctx.reply(_(ctx, "Review for this subject not found."))
 
+    @check.acl2(check.ACLevel.SUBMOD)
+    @commands.guild_only()
+    @review.command(name="sudo-remove", aliases=["sudo-rm", "sudo-delete"])
+    async def sudo_review_remove(
+        self, ctx: discord.ext.commands.Context, abbreviation: str, user: discord.User
+    ):
+        """Remove other user's reviews."""
+        if Review.remove(ctx.guild, user, abbreviation):
+            await ctx.reply(
+                _(
+                    ctx,
+                    "Review on subject {abbreviation} from user {username} removed.",
+                ).format(abbreviation=abbreviation, username=user.display_name)
+            )
+            await guild_log.info(
+                ctx.author,
+                ctx.channel,
+                f"Removed review on subject {abbreviation} from user {user.display_name} ({user.id}).",
+            )
+            return
+        await ctx.reply(_(ctx, "Review not found."))
+
     @check.acl2(check.ACLevel.MEMBER)
     @commands.guild_only()
     @commands.group(name="subject")
@@ -262,12 +304,12 @@ class Reviews(commands.Cog):
     @check.acl2(check.ACLevel.MEMBER)
     @commands.guild_only()
     @subject.command(name="info")
-    async def subject_info(self, ctx: discord.ext.commands.Context, subject: str):
+    async def subject_info(self, ctx: discord.ext.commands.Context, abbreviation: str):
         """Get information about subject
 
-        subject: Subject code
+        abbreviation: Subject code
         """
-        subject = Subject.get(ctx.guild, subject)
+        subject = Subject.get(ctx.guild, abbreviation)
         if subject is None:
             return await ctx.reply(_(ctx, "Unknown subject."))
 
@@ -290,6 +332,12 @@ class Reviews(commands.Cog):
         name: str,
         category: str,
     ):
+        """
+        Add a subject.
+        abbreviation is a subject code,
+        name is its full name
+        and category is its department
+        """
         Subject.add(ctx.guild, abbreviation, name, category)
         await guild_log.info(
             ctx.author, ctx.channel, f"Added/updated subject: {abbreviation}."
@@ -302,6 +350,7 @@ class Reviews(commands.Cog):
     async def subject_remove(
         self, ctx: discord.ext.commands.Context, abbreviation: str
     ):
+        """Remove a subject."""
         if Subject.remove(ctx.guild, abbreviation):
             await guild_log.info(
                 ctx.author, ctx.channel, f"Removed subject: {abbreviation}."

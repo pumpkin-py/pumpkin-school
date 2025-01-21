@@ -58,6 +58,12 @@ msgstr
 msgid Review for this subject not found.
 msgstr
 
+msgid Review on subject {abbreviation} from user {username} removed.
+msgstr
+
+msgid Review not found.
+msgstr
+
 msgid Department
 msgstr
 

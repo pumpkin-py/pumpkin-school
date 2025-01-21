@@ -58,6 +58,12 @@ msgstr Hodnocení úspěšně odebráno.
 msgid Review for this subject not found.
 msgstr Žádné hodnocení tohoto předmětu nebylo nalezeno.
 
+msgid Review on subject {abbreviation} from user {username} removed.
+msgstr Hodnocení předmětu {abbreviation} uživatele {username} odstraněno.
+
+msgid Review not found.
+msgstr Hodnocení nenalezeno.
+
 msgid Department
 msgstr Ústav
 
