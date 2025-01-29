@@ -12,9 +12,22 @@ _ = i18n.Translator("modules/school").translate
 guild_log = logger.Guild.logger()
 
 
+MAX_LEN = 1024
+
+
+def _split_subjects(subjects: list[Subject]) -> list[str]:
+    ans = [""]
+    for subject in subjects:
+        if len(ans[-1]) + len(subject.shortcut) + len(", ") > MAX_LEN:
+            ans.append("")
+        if ans[-1]:
+            ans[-1] += ", "
+        ans[-1] += subject.shortcut
+    return ans
+
+
 def _split_review(review: str) -> List[str]:
     """Splits the review into chunks that can fit into an embed."""
-    MAX_LEN = 1024
     ans = []
     number_of_full_chunks = len(review) // MAX_LEN
     for i in range(number_of_full_chunks):
@@ -154,9 +167,8 @@ class Reviews(commands.Cog):
             await ctx.reply(_(ctx, "There are no rated subjects yet."))
             return
         embed = discord.Embed(title=_(ctx, "Available subjects"))
-        embed.add_field(
-            name="", value=", ".join(subject.shortcut for subject in subjects)
-        )
+        for subject_substring in _split_subjects(subjects):
+            embed.add_field(name="", value=subject_substring)
         await ctx.reply(embed=embed)
 
     @check.acl2(check.ACLevel.MEMBER)
@@ -168,9 +180,8 @@ class Reviews(commands.Cog):
         if len(subjects) == 0:
             return await ctx.reply(_(ctx, "You have not rated any subject yet."))
         embed = discord.Embed(title=_(ctx, "My rated subjects"))
-        embed.add_field(
-            name="", value=", ".join(subject.shortcut for subject in subjects)
-        )
+        for subject_substring in _split_subjects(subjects):
+            embed.add_field(name="", value=subject_substring)
         await ctx.reply(embed=embed)
 
     @staticmethod
