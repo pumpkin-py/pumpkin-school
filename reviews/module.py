@@ -130,7 +130,7 @@ class Reviews(commands.Cog):
             embed = ReviewEmbed(db_review.id, ctx)
             embed.title = subject_abbr
             embed.add_field(name=_(ctx, "Name"), value=db_subject.name)
-            embed.add_field(name=_(ctx, "Average rating"), value=average_review)
+            embed.add_field(name=_(ctx, "Average rating"), value=round(average_review,2))
             embed.add_field(
                 name=_(ctx, "Review author"),
                 value=_(ctx, "Anonymous user")
