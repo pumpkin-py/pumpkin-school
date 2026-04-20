@@ -29,13 +29,29 @@ def _split_subjects(subjects: list[Subject]) -> list[str]:
 def _split_review(review: str) -> List[str]:
     """Splits the review into chunks that can fit into an embed."""
     ans = []
-    number_of_full_chunks = len(review) // MAX_LEN
-    for i in range(number_of_full_chunks):
-        start_index = i * MAX_LEN
-        ans.append(review[start_index : start_index + MAX_LEN])
-    if len(review) % MAX_LEN:
-        # Add the last non-full chunk
-        ans.append(review[number_of_full_chunks * MAX_LEN :])
+    start_pos = 0
+    end_pos = MAX_LEN
+    if MAX_LEN >= len(review):
+        ans.append(review)
+    else:
+        while end_pos <= len(review):
+            chunk = review[start_pos: end_pos]
+            if chunk[len(chunk) - 1] != " " and end_pos != len(review):
+                end_pos = end_pos - (end_pos - chunk.rfind(" "))
+                chunk = chunk[0:chunk.rfind(" ") + 1]
+                ans.append(chunk)
+            else:
+                ans.append(chunk)
+
+            if end_pos == len(review):
+                break
+
+            start_pos = end_pos + 1
+
+            end_pos = start_pos + MAX_LEN
+
+            if end_pos > len(review):
+                end_pos = len(review)
     return ans
 
 
@@ -153,7 +169,7 @@ class Reviews(commands.Cog):
                     name=_(ctx, "Text review"), value=review_chunks[0], inline=False
                 )
                 for chunk in review_chunks[1:]:
-                    embed.add_field(name="", value=chunk)
+                    embed.add_field(name="", value=chunk, inline=False)
             embeds.append(embed)
         await ScrollableVotingEmbed(ctx, embeds).scroll()
 
